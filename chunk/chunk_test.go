@@ -15,3 +15,12 @@ func TestInt(t *testing.T) {
 		t.Fatal("error to Int")
 	}
 }
+
+func TestString(t *testing.T) {
+	value := []string{"a", "b", "c", "d", "e"}
+	expected := [][]string{{"a", "b"}, {"c", "d"}, {"e"}}
+	result := chunk.String(value, 2)
+	if !reflect.DeepEqual(result, expected) {
+		t.Fatal("error to String")
+	}
+}
