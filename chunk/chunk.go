@@ -20,7 +20,8 @@ func Interface(list interface{}, chunkSize int) interface{} {
 
 	result := reflect.MakeSlice(reflect.SliceOf(typ), 0, length/chunkSize+min(length%chunkSize, 1))
 	for i := 0; i < length; i += chunkSize {
-		result = reflect.Append(result, reflectValue.Slice(i, min(i+chunkSize, length)))
+		rangeLast := min(i+chunkSize, length)
+		result = reflect.Append(result, reflectValue.Slice3(i, rangeLast, rangeLast))
 	}
 	return result.Interface()
 }
