@@ -2,7 +2,13 @@ package chunk
 
 import (
 	"reflect"
+
+	"github.com/ryo-kagawa/go-utils/conditional"
 )
+
+func min(value1, value2 int) int {
+	return conditional.Int(value1 < value2, value1, value2)
+}
 
 func Interface(list interface{}, chunkSize int) interface{} {
 	if list == nil {
@@ -13,12 +19,8 @@ func Interface(list interface{}, chunkSize int) interface{} {
 	length := reflectValue.Len()
 
 	result := reflect.MakeSlice(reflect.SliceOf(typ), 0, 0)
-	for i := 0; i < length; {
-		temp := reflect.MakeSlice(typ, 0, 0)
-		for j := 0; i+j < length && j < chunkSize; i, j = i+1, j+1 {
-			temp = reflect.Append(temp, reflectValue.Index(i))
-		}
-		result = reflect.Append(result, temp)
+	for i := 0; i < length; i += chunkSize {
+		result = reflect.Append(result, reflectValue.Slice(i, min(i+chunkSize, length)))
 	}
 	return result.Interface()
 }

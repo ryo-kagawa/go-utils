@@ -1,0 +1,3 @@
+github.com/ryo-kagawa/go-utils v0.0.0-20201116163827-dfeb77a4be5d h1:KzCH3YyzGEbHAxtu8xXeZzjtSYo4fKd+pQlq1btLj0c=
+github.com/ryo-kagawa/go-utils/conditional v0.0.0-20201116163827-dfeb77a4be5d h1:u4QSp4flck/f2EVlG3IvuyAXXEXZqQ0VGjkwe28uFbE=
+github.com/ryo-kagawa/go-utils/conditional v0.0.0-20201116163827-dfeb77a4be5d/go.mod h1:gtFjE1PW/Vv5cx/C+S8s/AlOGl3LUx9lk0pvjU3xsvc=
