@@ -17,7 +17,7 @@ func Interface(list interface{}, f interface{}) interface{} {
 			result = reflect.Append(result, target)
 		}
 	}
-	return result.Interface()
+	return result.Slice3(0, result.Len(), result.Len()).Interface()
 }
 
 func Int(list []int, f func(v int) bool) []int {
