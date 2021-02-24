@@ -3,12 +3,8 @@ package chunk
 import (
 	"reflect"
 
-	"github.com/ryo-kagawa/go-utils/conditional"
+	"github.com/ryo-kagawa/go-utils/math/min"
 )
-
-func min(value1, value2 int) int {
-	return conditional.Int(value1 < value2, value1, value2)
-}
 
 func Interface(list interface{}, chunkSize int) interface{} {
 	if list == nil {
@@ -18,9 +14,9 @@ func Interface(list interface{}, chunkSize int) interface{} {
 	typ := reflectValue.Type()
 	length := reflectValue.Len()
 
-	result := reflect.MakeSlice(reflect.SliceOf(typ), 0, length/chunkSize+min(length%chunkSize, 1))
+	result := reflect.MakeSlice(reflect.SliceOf(typ), 0, length/chunkSize+min.Int(length%chunkSize, 1))
 	for i := 0; i < length; i += chunkSize {
-		rangeLast := min(i+chunkSize, length)
+		rangeLast := min.Int(i+chunkSize, length)
 		result = reflect.Append(result, reflectValue.Slice3(i, rangeLast, rangeLast))
 	}
 	return result.Interface()
