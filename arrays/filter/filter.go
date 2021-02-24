@@ -3,15 +3,14 @@ package filter
 import "reflect"
 
 func Interface(list interface{}, f interface{}) interface{} {
-	if list == nil {
-		return list
-	}
-
 	reflectValue := reflect.ValueOf(list)
 	typ := reflectValue.Type()
-	length := reflectValue.Len()
+	if reflectValue.IsNil() {
+		return reflect.MakeSlice(typ, 0, 0).Interface()
+	}
 
-	result := reflect.MakeSlice(typ, 0, 0)
+	length := reflectValue.Len()
+	result := reflect.MakeSlice(typ, 0, length)
 	for i := 0; i < length; i++ {
 		target := reflectValue.Index(i)
 		if reflect.ValueOf(f).Call([]reflect.Value{target})[0].Bool() {
