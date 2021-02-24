@@ -26,7 +26,7 @@ func TestInt(t *testing.T) {
 		{
 			name: "func([]int{}, 1) == [][]int{}",
 			args: args{
-				list:      []int(nil),
+				list:      []int{},
 				chunkSize: 1,
 			},
 			want: [][]int{},
