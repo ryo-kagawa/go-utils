@@ -5,7 +5,6 @@
 # 個人的によく使うライブラリ
 - github.com/360EntSecGroup-Skylar/excelize/v2
 - github.com/kelseyhightower/envconfig
-- github.com/wesovilabs/koazee
 - github.com/yeka/zip
 - gopkg.in/mail.v2
 - gopkg.in/yaml.v3
