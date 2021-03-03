@@ -5,13 +5,15 @@ import (
 	"testing"
 )
 
-func TestInt(t *testing.T) {
+func TestInterface(t *testing.T) {
+	zero := 0
+	one := 1
 	type args struct {
-		list []int
-		f    func(v int) bool
+		list interface{}
+		f    interface{}
 	}
 	type wants struct {
-		want1 int
+		want1 interface{}
 		want2 bool
 	}
 	tests := []struct {
@@ -97,12 +99,41 @@ func TestInt(t *testing.T) {
 				want2: true,
 			},
 		},
+		{
+			name: "func([]*int(nil), true) == []*int{}",
+			args: args{
+				list: []*int(nil),
+				f: func(v int) bool {
+					return true
+				},
+			},
+			wants: wants{
+				want1: (*int)(nil),
+				want2: false,
+			},
+		},
+		{
+			name: "func([]*int{0, 1}, true) == []*int{0, 1}",
+			args: args{
+				list: []*int{
+					&zero,
+					&one,
+				},
+				f: func(v *int) bool {
+					return true
+				},
+			},
+			wants: wants{
+				want1: &zero,
+				want2: true,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got1, got2 := Int(tt.args.list, tt.args.f)
+			got1, got2 := Interface(tt.args.list, tt.args.f)
 			if !reflect.DeepEqual(got1, tt.wants.want1) || got2 != tt.wants.want2 {
-				t.Errorf("Int() got1 = %v, want1 %v, got2 = %v, want2 = %v", got1, tt.wants.want1, got2, tt.wants.want2)
+				t.Errorf("Interface() got1 = %v, want1 %v, got2 = %v, want2 = %v", got1, tt.wants.want1, got2, tt.wants.want2)
 			}
 		})
 	}

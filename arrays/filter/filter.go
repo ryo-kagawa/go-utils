@@ -19,11 +19,3 @@ func Interface(list interface{}, f interface{}) interface{} {
 	}
 	return result.Slice3(0, result.Len(), result.Len()).Interface()
 }
-
-func Int(list []int, f func(v int) bool) []int {
-	return Interface(list, f).([]int)
-}
-
-func String(list []string, f func(v string) bool) []string {
-	return Interface(list, f).([]string)
-}

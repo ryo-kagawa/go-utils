@@ -5,15 +5,15 @@ import (
 	"testing"
 )
 
-func TestInt(t *testing.T) {
+func TestInterface(t *testing.T) {
 	type args struct {
-		list      []int
+		list      interface{}
 		chunkSize int
 	}
 	tests := []struct {
 		name string
 		args args
-		want [][]int
+		want interface{}
 	}{
 		{
 			name: "func([]int(nil), 1) == [][]int{}",
@@ -55,11 +55,27 @@ func TestInt(t *testing.T) {
 			},
 			want: [][]int{{1, 2}, {3, 4}, {5}},
 		},
+		{
+			name: "func([]*int(nil), 1) == [][]*int{}",
+			args: args{
+				list:      []*int(nil),
+				chunkSize: 1,
+			},
+			want: [][]*int{},
+		},
+		{
+			name: "func([]*int[nil], 1) == [][]*int{nil}",
+			args: args{
+				list:      []*int{nil},
+				chunkSize: 1,
+			},
+			want: [][]*int{{nil}},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Int(tt.args.list, tt.args.chunkSize); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Int() = %v, want %v", got, tt.want)
+			if got := Interface(tt.args.list, tt.args.chunkSize); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Interface() = %v, want %v", got, tt.want)
 			}
 		})
 	}

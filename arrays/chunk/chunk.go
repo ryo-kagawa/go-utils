@@ -21,11 +21,3 @@ func Interface(list interface{}, chunkSize int) interface{} {
 	}
 	return result.Interface()
 }
-
-func Int(list []int, chunkSize int) [][]int {
-	return Interface(list, chunkSize).([][]int)
-}
-
-func String(list []string, chunkSize int) [][]string {
-	return Interface(list, chunkSize).([][]string)
-}

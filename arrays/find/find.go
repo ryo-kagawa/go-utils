@@ -18,13 +18,3 @@ func Interface(list interface{}, f interface{}) (interface{}, bool) {
 	}
 	return reflect.Zero(typ.Elem()).Interface(), false
 }
-
-func Int(list []int, f func(v int) bool) (int, bool) {
-	x, ok := Interface(list, f)
-	return x.(int), ok
-}
-
-func String(list []string, f func(v string) bool) (string, bool) {
-	x, ok := Interface(list, f)
-	return x.(string), ok
-}

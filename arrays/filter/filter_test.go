@@ -5,15 +5,17 @@ import (
 	"testing"
 )
 
-func TestInt(t *testing.T) {
+func TestInterface(t *testing.T) {
+	zero := 0
+	one := 1
 	type args struct {
-		list []int
-		f    func(v int) bool
+		list interface{}
+		f    interface{}
 	}
 	tests := []struct {
 		name string
 		args args
-		want []int
+		want interface{}
 	}{
 		{
 			name: "func([]int(nil), true) == []int{}",
@@ -56,16 +58,6 @@ func TestInt(t *testing.T) {
 			want: []int{},
 		},
 		{
-			name: "func([]int{0, 1}, v == 1) == []int{1}",
-			args: args{
-				list: []int{0, 1},
-				f: func(v int) bool {
-					return v == 1
-				},
-			},
-			want: []int{1},
-		},
-		{
 			name: "func([]int{0, 1, 2}, v != 1) == []int{0, 2}",
 			args: args{
 				list: []int{0, 1, 2},
@@ -75,11 +67,37 @@ func TestInt(t *testing.T) {
 			},
 			want: []int{0, 2},
 		},
+		{
+			name: "func([]*int(nil), true) == []*int{}",
+			args: args{
+				list: []*int(nil),
+				f: func(v int) bool {
+					return true
+				},
+			},
+			want: []*int{},
+		},
+		{
+			name: "func([]*int{0, 1}, true) == []*int{0, 1}",
+			args: args{
+				list: []*int{
+					&zero,
+					&one,
+				},
+				f: func(v *int) bool {
+					return true
+				},
+			},
+			want: []*int{
+				&zero,
+				&one,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Int(tt.args.list, tt.args.f); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Int() = %v, want %v", got, tt.want)
+			if got := Interface(tt.args.list, tt.args.f); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Interface() = %v, want %v", got, tt.want)
 			}
 		})
 	}
