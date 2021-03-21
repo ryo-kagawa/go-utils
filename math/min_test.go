@@ -1,164 +1,131 @@
 package math
 
 import (
+	"reflect"
 	"testing"
 )
 
-func Test_min_Float64(t *testing.T) {
+func Test_min_Interface(t *testing.T) {
 	type args struct {
-		value     float64
-		valueList []float64
+		value     interface{}
+		valueList interface{}
 	}
 	tests := []struct {
 		name string
 		m    min
 		args args
-		want float64
+		want interface{}
 	}{
 		{
-			name: "left",
+			name: "func(int(20), []int{}) == int(20)",
 			args: args{
-				value:     10,
-				valueList: []float64{20},
+				value:     int(20),
+				valueList: []int{},
 			},
-			want: 10,
+			want: int(20),
 		},
 		{
-			name: "right",
+			name: "func(int(20), []int{10}) == int(20)",
 			args: args{
-				value:     20,
-				valueList: []float64{10},
+				value:     int(20),
+				valueList: []int{10},
 			},
-			want: 10,
+			want: int(20),
 		},
 		{
-			name: "none",
+			name: "func(int(10), []int{20}) == int(20)",
 			args: args{
-				value:     10,
-				valueList: []float64{},
+				value:     int(10),
+				valueList: []int{20},
 			},
-			want: 10,
+			want: int(20),
 		},
 		{
-			name: "multiValue",
+			name: "func(int(10), []int{20, 30, 25}) == int(30)",
 			args: args{
-				value:     30,
-				valueList: []float64{20, 10, 25},
+				value:     int(10),
+				valueList: []float64{20, 30, 25},
 			},
-			want: 10,
+			want: int(30),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.m.Float64(tt.args.value, tt.args.valueList...); got != tt.want {
-				t.Errorf("min.Float64() = %v, want %v", got, tt.want)
+			if got := tt.m.Interface(tt.args.value, tt.args.valueList); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("min.Interface() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Test_min_Float32(t *testing.T) {
+	if reflect.DeepEqual(Min.Float32(1), float32(1)) {
+		t.Errorf("min.Float32(1) = float32(1)")
+	}
+}
+
+func Test_min_Float64(t *testing.T) {
+	if reflect.DeepEqual(Min.Float64(1), float64(1)) {
+		t.Errorf("min.Float64(1) = float64(1)")
 	}
 }
 
 func Test_min_Int(t *testing.T) {
-	type args struct {
-		value     int
-		valueList []int
+	if reflect.DeepEqual(Min.Int(1), int(1)) {
+		t.Errorf("min.Int(1) = int(1)")
 	}
-	tests := []struct {
-		name string
-		m    min
-		args args
-		want int
-	}{
-		{
-			name: "left",
-			args: args{
-				value:     10,
-				valueList: []int{20},
-			},
-			want: 10,
-		},
-		{
-			name: "right",
-			args: args{
-				value:     20,
-				valueList: []int{10},
-			},
-			want: 10,
-		},
-		{
-			name: "none",
-			args: args{
-				value:     10,
-				valueList: []int{},
-			},
-			want: 10,
-		},
-		{
-			name: "multiValue",
-			args: args{
-				value:     30,
-				valueList: []int{20, 10, 25},
-			},
-			want: 10,
-		},
+}
+
+func Test_min_Int8(t *testing.T) {
+	if reflect.DeepEqual(Min.Int8(1), int8(1)) {
+		t.Errorf("min.Int8(1) = int8(1)")
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.m.Int(tt.args.value, tt.args.valueList...); got != tt.want {
-				t.Errorf("min.Int() = %v, want %v", got, tt.want)
-			}
-		})
+}
+
+func Test_min_Int16(t *testing.T) {
+	if reflect.DeepEqual(Min.Int16(1), int16(1)) {
+		t.Errorf("min.Int16(1) = int16(1)")
+	}
+}
+
+func Test_min_Int32(t *testing.T) {
+	if reflect.DeepEqual(Min.Int32(1), int32(1)) {
+		t.Errorf("min.Int32(1) = int32(1)")
+	}
+}
+
+func Test_min_Int64(t *testing.T) {
+	if reflect.DeepEqual(Min.Int64(1), int64(1)) {
+		t.Errorf("min.Int64(1) = int64(1)")
 	}
 }
 
 func Test_min_UInt(t *testing.T) {
-	type args struct {
-		value     uint
-		valueList []uint
+	if reflect.DeepEqual(Min.UInt(1), uint(1)) {
+		t.Errorf("min.UInt(1) = uint(1)")
 	}
-	tests := []struct {
-		name string
-		m    min
-		args args
-		want uint
-	}{
-		{
-			name: "left",
-			args: args{
-				value:     10,
-				valueList: []uint{20},
-			},
-			want: 10,
-		},
-		{
-			name: "right",
-			args: args{
-				value:     20,
-				valueList: []uint{10},
-			},
-			want: 10,
-		},
-		{
-			name: "none",
-			args: args{
-				value:     10,
-				valueList: []uint{},
-			},
-			want: 10,
-		},
-		{
-			name: "multiValue",
-			args: args{
-				value:     30,
-				valueList: []uint{20, 10, 25},
-			},
-			want: 10,
-		},
+}
+
+func Test_min_UInt8(t *testing.T) {
+	if reflect.DeepEqual(Min.UInt8(1), uint8(1)) {
+		t.Errorf("min.UInt8(1) = uint8(1)")
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.m.UInt(tt.args.value, tt.args.valueList...); got != tt.want {
-				t.Errorf("min.UInt() = %v, want %v", got, tt.want)
-			}
-		})
+}
+
+func Test_min_UInt16(t *testing.T) {
+	if reflect.DeepEqual(Min.UInt16(1), uint16(1)) {
+		t.Errorf("min.UInt16(1) = uint16(1)")
+	}
+}
+
+func Test_min_UInt32(t *testing.T) {
+	if reflect.DeepEqual(Min.UInt32(1), uint32(1)) {
+		t.Errorf("min.UInt32(1) = uint32(1)")
+	}
+}
+
+func Test_min_UInt64(t *testing.T) {
+	if reflect.DeepEqual(Min.UInt64(1), uint64(1)) {
+		t.Errorf("min.UInt64(1) = uint64(1)")
 	}
 }
