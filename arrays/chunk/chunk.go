@@ -3,7 +3,7 @@ package chunk
 import (
 	"reflect"
 
-	"github.com/ryo-kagawa/go-utils/math/min"
+	"github.com/ryo-kagawa/go-utils/math"
 )
 
 func Interface(list interface{}, chunkSize int) interface{} {
@@ -14,9 +14,9 @@ func Interface(list interface{}, chunkSize int) interface{} {
 	}
 
 	length := reflectValue.Len()
-	result := reflect.MakeSlice(reflect.SliceOf(typ), 0, length/chunkSize+min.Int(length%chunkSize, 1))
+	result := reflect.MakeSlice(reflect.SliceOf(typ), 0, length/chunkSize+math.Min.Int(length%chunkSize, 1))
 	for i := 0; i < length; i += chunkSize {
-		rangeLast := min.Int(i+chunkSize, length)
+		rangeLast := math.Min.Int(i+chunkSize, length)
 		result = reflect.Append(result, reflectValue.Slice3(i, rangeLast, rangeLast))
 	}
 	return result.Interface()
