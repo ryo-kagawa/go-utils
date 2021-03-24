@@ -1,4 +1,4 @@
-package chunk
+package arrays
 
 import (
 	"reflect"
@@ -6,7 +6,11 @@ import (
 	"github.com/ryo-kagawa/go-utils/math"
 )
 
-func Interface(list interface{}, chunkSize int) interface{} {
+type chunk struct{}
+
+var Chunk = chunk{}
+
+func (c chunk) Interface(list interface{}, chunkSize int) interface{} {
 	reflectValue := reflect.ValueOf(list)
 	typ := reflectValue.Type()
 	if reflectValue.IsNil() {

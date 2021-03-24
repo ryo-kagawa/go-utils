@@ -1,17 +1,18 @@
-package chunk
+package arrays
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestInterface(t *testing.T) {
+func Test_chunk_Interface(t *testing.T) {
 	type args struct {
 		list      interface{}
 		chunkSize int
 	}
 	tests := []struct {
 		name string
+		c    chunk
 		args args
 		want interface{}
 	}{
@@ -74,8 +75,8 @@ func TestInterface(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Interface(tt.args.list, tt.args.chunkSize); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Interface() = %v, want %v", got, tt.want)
+			if got := tt.c.Interface(tt.args.list, tt.args.chunkSize); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("chunk.Interface() = %v, want %v", got, tt.want)
 			}
 		})
 	}

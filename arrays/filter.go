@@ -1,8 +1,12 @@
-package filter
+package arrays
 
 import "reflect"
 
-func Interface(list interface{}, f interface{}) interface{} {
+type filter struct{}
+
+var Filter = filter{}
+
+func (f filter) Interface(list interface{}, fn interface{}) interface{} {
 	reflectValue := reflect.ValueOf(list)
 	typ := reflectValue.Type()
 	if reflectValue.IsNil() {
@@ -13,7 +17,7 @@ func Interface(list interface{}, f interface{}) interface{} {
 	result := reflect.MakeSlice(typ, 0, length)
 	for i := 0; i < length; i++ {
 		target := reflectValue.Index(i)
-		if reflect.ValueOf(f).Call([]reflect.Value{target})[0].Bool() {
+		if reflect.ValueOf(fn).Call([]reflect.Value{target})[0].Bool() {
 			result = reflect.Append(result, target)
 		}
 	}

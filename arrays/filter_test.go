@@ -1,19 +1,21 @@
-package filter
+package arrays
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestInterface(t *testing.T) {
+func Test_filter_Interface(t *testing.T) {
 	zero := 0
 	one := 1
+
 	type args struct {
 		list interface{}
-		f    interface{}
+		fn   interface{}
 	}
 	tests := []struct {
 		name string
+		f    filter
 		args args
 		want interface{}
 	}{
@@ -21,7 +23,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int(nil), true) == []int{}",
 			args: args{
 				list: []int(nil),
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return true
 				},
 			},
@@ -31,7 +33,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{}, true) == []int{}",
 			args: args{
 				list: []int{},
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return true
 				},
 			},
@@ -41,7 +43,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{0}, v == 0) == []int{0}",
 			args: args{
 				list: []int{0},
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return v == 0
 				},
 			},
@@ -51,7 +53,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{1}, v == 0) == []int{}",
 			args: args{
 				list: []int{1},
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return v == 0
 				},
 			},
@@ -61,7 +63,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{0, 1, 2}, v != 1) == []int{0, 2}",
 			args: args{
 				list: []int{0, 1, 2},
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return v != 1
 				},
 			},
@@ -71,7 +73,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]*int(nil), true) == []*int{}",
 			args: args{
 				list: []*int(nil),
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return true
 				},
 			},
@@ -84,7 +86,7 @@ func TestInterface(t *testing.T) {
 					&zero,
 					&one,
 				},
-				f: func(v *int) bool {
+				fn: func(v *int) bool {
 					return true
 				},
 			},
@@ -96,8 +98,8 @@ func TestInterface(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Interface(tt.args.list, tt.args.f); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Interface() = %v, want %v", got, tt.want)
+			if got := tt.f.Interface(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("filter.Interface() = %v, want %v", got, tt.want)
 			}
 		})
 	}

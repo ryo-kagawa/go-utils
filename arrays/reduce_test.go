@@ -1,4 +1,4 @@
-package filter
+package arrays
 
 import (
 	"reflect"
@@ -6,13 +6,14 @@ import (
 	"testing"
 )
 
-func TestInterface(t *testing.T) {
+func Test_reduce_Interface(t *testing.T) {
 	type args struct {
 		list interface{}
-		f    interface{}
+		fn   interface{}
 	}
 	tests := []struct {
 		name string
+		r    reduce
 		args args
 		want interface{}
 	}{
@@ -20,7 +21,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int(nil), func(acc string, cur int, i int, src []int) string == \"\"",
 			args: args{
 				list: []int(nil),
-				f: func(acc string, cur int, i int, src []int) string {
+				fn: func(acc string, cur int, i int, src []int) string {
 					return acc + strconv.FormatInt(int64(cur), 10)
 				},
 			},
@@ -30,7 +31,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{}, func(acc string, cur int, i int, src []int) string == \"\"",
 			args: args{
 				list: []int{},
-				f: func(acc string, cur int, i int, src []int) string {
+				fn: func(acc string, cur int, i int, src []int) string {
 					return acc + strconv.FormatInt(int64(cur), 10)
 				},
 			},
@@ -40,7 +41,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{1, 2}, func(acc string, cur int, i int, src []int) string == \"12\"",
 			args: args{
 				list: []int{1, 2},
-				f: func(acc string, cur int, i int, src []int) string {
+				fn: func(acc string, cur int, i int, src []int) string {
 					return acc + strconv.FormatInt(int64(cur), 10)
 				},
 			},
@@ -50,7 +51,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{1, 2}, func(acc int, cur int, i int, src []int) int == 3",
 			args: args{
 				list: []int{1, 2},
-				f: func(acc int, cur int, i int, src []int) int {
+				fn: func(acc int, cur int, i int, src []int) int {
 					return acc + cur
 				},
 			},
@@ -60,7 +61,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{1, 2}, func(acc int, cur int) int == 3",
 			args: args{
 				list: []int{1, 2},
-				f: func(acc int, cur int) int {
+				fn: func(acc int, cur int) int {
 					return acc + cur
 				},
 			},
@@ -69,8 +70,8 @@ func TestInterface(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Interface(tt.args.list, tt.args.f); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Interface() = %v, want %v", got, tt.want)
+			if got := tt.r.Interface(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("reduce.Interface() = %v, want %v", got, tt.want)
 			}
 		})
 	}

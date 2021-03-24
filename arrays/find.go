@@ -1,8 +1,12 @@
-package find
+package arrays
 
 import "reflect"
 
-func Interface(list interface{}, f interface{}) (interface{}, bool) {
+type find struct{}
+
+var Find = find{}
+
+func (f find) Interface(list interface{}, fn interface{}) (interface{}, bool) {
 	reflectValue := reflect.ValueOf(list)
 	typ := reflectValue.Type()
 	if reflectValue.IsNil() {
@@ -12,7 +16,7 @@ func Interface(list interface{}, f interface{}) (interface{}, bool) {
 	length := reflectValue.Len()
 	for i := 0; i < length; i++ {
 		target := reflectValue.Index(i)
-		if reflect.ValueOf(f).Call([]reflect.Value{target})[0].Bool() {
+		if reflect.ValueOf(fn).Call([]reflect.Value{target})[0].Bool() {
 			return target.Interface(), true
 		}
 	}

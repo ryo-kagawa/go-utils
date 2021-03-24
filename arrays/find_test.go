@@ -1,16 +1,16 @@
-package find
+package arrays
 
 import (
 	"reflect"
 	"testing"
 )
 
-func TestInterface(t *testing.T) {
+func Test_find_Interface(t *testing.T) {
 	zero := 0
 	one := 1
 	type args struct {
 		list interface{}
-		f    interface{}
+		fn   interface{}
 	}
 	type wants struct {
 		want1 interface{}
@@ -18,6 +18,7 @@ func TestInterface(t *testing.T) {
 	}
 	tests := []struct {
 		name  string
+		f     find
 		args  args
 		wants wants
 	}{
@@ -25,7 +26,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int(nil), true) == 0, false",
 			args: args{
 				list: []int(nil),
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return true
 				},
 			},
@@ -38,7 +39,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{}, true) == 0, false",
 			args: args{
 				list: []int{},
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return true
 				},
 			},
@@ -51,7 +52,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{0}, v == 0) == 0, true",
 			args: args{
 				list: []int{0},
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return v == 0
 				},
 			},
@@ -64,7 +65,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{1}, v == 0) == 0, false",
 			args: args{
 				list: []int{1},
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return v == 0
 				},
 			},
@@ -77,7 +78,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{0, 1}, v == 1) == 1, true",
 			args: args{
 				list: []int{0, 1},
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return v == 1
 				},
 			},
@@ -90,7 +91,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]int{0, 1, 2}, v != 1) == 0, true",
 			args: args{
 				list: []int{0, 1, 2},
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return v != 1
 				},
 			},
@@ -103,7 +104,7 @@ func TestInterface(t *testing.T) {
 			name: "func([]*int(nil), true) == []*int{}",
 			args: args{
 				list: []*int(nil),
-				f: func(v int) bool {
+				fn: func(v int) bool {
 					return true
 				},
 			},
@@ -119,7 +120,7 @@ func TestInterface(t *testing.T) {
 					&zero,
 					&one,
 				},
-				f: func(v *int) bool {
+				fn: func(v *int) bool {
 					return true
 				},
 			},
@@ -131,7 +132,7 @@ func TestInterface(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got1, got2 := Interface(tt.args.list, tt.args.f)
+			got1, got2 := tt.f.Interface(tt.args.list, tt.args.fn)
 			if !reflect.DeepEqual(got1, tt.wants.want1) || got2 != tt.wants.want2 {
 				t.Errorf("Interface() got1 = %v, want1 %v, got2 = %v, want2 = %v", got1, tt.wants.want1, got2, tt.wants.want2)
 			}

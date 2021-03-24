@@ -1,10 +1,14 @@
-package filter
+package arrays
 
 import "reflect"
 
-func Interface(list interface{}, f interface{}) interface{} {
+type reduce struct{}
+
+var Reduce = reduce{}
+
+func (r reduce) Interface(list interface{}, fn interface{}) interface{} {
 	reflectValue := reflect.ValueOf(list)
-	funcValue := reflect.ValueOf(f)
+	funcValue := reflect.ValueOf(fn)
 	funcReturnType := funcValue.Type().Out(0)
 	if reflectValue.IsNil() {
 		return reflect.Zero(funcReturnType).Interface()
@@ -23,7 +27,7 @@ func Interface(list interface{}, f interface{}) interface{} {
 		if funcValueLength >= 4 {
 			value = append(value, reflectValue)
 		}
-		accumulator = reflect.ValueOf(f).Call(value)[0]
+		accumulator = reflect.ValueOf(fn).Call(value)[0]
 	}
 	return accumulator.Interface()
 }

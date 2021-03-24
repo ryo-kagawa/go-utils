@@ -1,4 +1,4 @@
-package filter
+package arrays
 
 import (
 	"reflect"
@@ -6,14 +6,15 @@ import (
 	"testing"
 )
 
-func TestInt(t *testing.T) {
+func Test_mapImpl_Interface(t *testing.T) {
 	zeroString := "0"
 	type args struct {
 		list interface{}
-		f    interface{}
+		fn   interface{}
 	}
 	tests := []struct {
 		name string
+		m    mapImpl
 		args args
 		want interface{}
 	}{
@@ -21,7 +22,7 @@ func TestInt(t *testing.T) {
 			name: "func([]int(nil)) == []string{}",
 			args: args{
 				list: []int(nil),
-				f: func(v int) string {
+				fn: func(v int) string {
 					return strconv.FormatInt(int64(v), 10)
 				},
 			},
@@ -31,7 +32,7 @@ func TestInt(t *testing.T) {
 			name: "func([]int{}) == []string{}",
 			args: args{
 				list: []int{},
-				f: func(v int) string {
+				fn: func(v int) string {
 					return strconv.FormatInt(int64(v), 10)
 				},
 			},
@@ -41,7 +42,7 @@ func TestInt(t *testing.T) {
 			name: "func([]int{0}) == []string{\"0\"}",
 			args: args{
 				list: []int{0},
-				f: func(v int) string {
+				fn: func(v int) string {
 					return strconv.FormatInt(int64(v), 10)
 				},
 			},
@@ -51,7 +52,7 @@ func TestInt(t *testing.T) {
 			name: "func([]int{0, 1}) == []string{\"0\", \"1\"}",
 			args: args{
 				list: []int{0, 1},
-				f: func(v int) string {
+				fn: func(v int) string {
 					return strconv.FormatInt(int64(v), 10)
 				},
 			},
@@ -61,7 +62,7 @@ func TestInt(t *testing.T) {
 			name: "func([]int{0}) == []*string{\"0\"}",
 			args: args{
 				list: []int{0},
-				f: func(v int) *string {
+				fn: func(v int) *string {
 					x := strconv.FormatInt(int64(v), 10)
 					return &x
 				},
@@ -72,7 +73,7 @@ func TestInt(t *testing.T) {
 			name: "func([]*int(nil)) == []string{}",
 			args: args{
 				list: []*int(nil),
-				f: func(v *int) string {
+				fn: func(v *int) string {
 					return strconv.FormatInt(int64(*v), 10)
 				},
 			},
@@ -81,8 +82,8 @@ func TestInt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Interface(tt.args.list, tt.args.f); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Interface() = %v, want %v", got, tt.want)
+			if got := tt.m.Interface(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("mapImpl.Interface() = %v, want %v", got, tt.want)
 			}
 		})
 	}
