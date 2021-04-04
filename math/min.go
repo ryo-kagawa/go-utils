@@ -1,69 +1,125 @@
 package math
 
-import (
-	"math"
-	"reflect"
-)
-
 type min struct{}
 
 var Min = min{}
 
-func (m min) Interface(value interface{}, valueList interface{}) interface{} {
-	result := ToFloat64(value)
-	valueListReflectValue := reflect.ValueOf(valueList)
-	length := valueListReflectValue.Len()
-	for i := 0; i < length; i++ {
-		result = math.Min(result, ToFloat64(valueListReflectValue.Index(i).Interface()))
-	}
-
-	return reflect.ValueOf(result).Convert(reflect.ValueOf(value).Type()).Interface()
-}
-
 func (m min) Float32(value float32, valueList ...float32) float32 {
-	return m.Interface(value, valueList).(float32)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) Float64(value float64, valueList ...float64) float64 {
-	return m.Interface(value, valueList).(float64)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) Int(value int, valueList ...int) int {
-	return m.Interface(value, valueList).(int)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) Int8(value int8, valueList ...int8) int8 {
-	return m.Interface(value, valueList).(int8)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) Int16(value int16, valueList ...int16) int16 {
-	return m.Interface(value, valueList).(int16)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) Int32(value int32, valueList ...int32) int32 {
-	return m.Interface(value, valueList).(int32)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) Int64(value int64, valueList ...int64) int64 {
-	return m.Interface(value, valueList).(int64)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) UInt(value uint, valueList ...uint) uint {
-	return m.Interface(value, valueList).(uint)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) UInt8(value uint8, valueList ...uint8) uint8 {
-	return m.Interface(value, valueList).(uint8)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) UInt16(value uint16, valueList ...uint16) uint16 {
-	return m.Interface(value, valueList).(uint16)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) UInt32(value uint32, valueList ...uint32) uint32 {
-	return m.Interface(value, valueList).(uint32)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
 
 func (m min) UInt64(value uint64, valueList ...uint64) uint64 {
-	return m.Interface(value, valueList).(uint64)
+	result := value
+	for _, x := range valueList {
+		if result > x {
+			result = x
+		}
+	}
+	return result
 }
