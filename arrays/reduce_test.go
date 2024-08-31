@@ -6,16 +6,16 @@ import (
 	"testing"
 )
 
-func Test_reduce_Interface(t *testing.T) {
+func TestReduce_int_string(t *testing.T) {
 	type args struct {
-		list interface{}
-		fn   interface{}
+		list         []int
+		fn           func(accumulator string, value int, currentIndex int, array []int) string
+		initialValue string
 	}
 	tests := []struct {
 		name string
-		r    reduce
 		args args
-		want interface{}
+		want string
 	}{
 		{
 			name: "func([]int(nil), func(acc string, cur int, i int, src []int) string == \"\"",
@@ -47,6 +47,27 @@ func Test_reduce_Interface(t *testing.T) {
 			},
 			want: "12",
 		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Reduce(tt.args.list, tt.args.fn, tt.args.initialValue); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Reduce() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReduce_int_int(t *testing.T) {
+	type args struct {
+		list         []int
+		fn           func(accumulator int, value int, currentIndex int, array []int) int
+		initialValue int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
 		{
 			name: "func([]int{1, 2}, func(acc int, cur int, i int, src []int) int == 3",
 			args: args{
@@ -57,21 +78,11 @@ func Test_reduce_Interface(t *testing.T) {
 			},
 			want: 3,
 		},
-		{
-			name: "func([]int{1, 2}, func(acc int, cur int) int == 3",
-			args: args{
-				list: []int{1, 2},
-				fn: func(acc int, cur int) int {
-					return acc + cur
-				},
-			},
-			want: 3,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.r.Interface(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("reduce.Interface() = %v, want %v", got, tt.want)
+			if got := Reduce(tt.args.list, tt.args.fn, tt.args.initialValue); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Reduce() = %v, want %v", got, tt.want)
 			}
 		})
 	}

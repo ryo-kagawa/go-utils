@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test_pad_pad(t *testing.T) {
+func TestPad(t *testing.T) {
 	type args struct {
 		str       string
 		padString string
@@ -12,7 +12,6 @@ func Test_pad_pad(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		p    pad
 		args args
 		want string
 	}{
@@ -46,14 +45,14 @@ func Test_pad_pad(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.p.pad(tt.args.str, tt.args.padString, tt.args.length); got != tt.want {
-				t.Errorf("pad.pad() = %v, want %v", got, tt.want)
+			if got := pad(tt.args.str, tt.args.padString, tt.args.length); got != tt.want {
+				t.Errorf("pad() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func Test_pad_Left(t *testing.T) {
+func TestPadLeft(t *testing.T) {
 	type args struct {
 		str       string
 		padString string
@@ -61,7 +60,6 @@ func Test_pad_Left(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		p    pad
 		args args
 		want string
 	}{
@@ -95,14 +93,14 @@ func Test_pad_Left(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.p.Left(tt.args.str, tt.args.padString, tt.args.length); got != tt.want {
-				t.Errorf("pad.Left() = %v, want %v", got, tt.want)
+			if got := PadLeft(tt.args.str, tt.args.padString, tt.args.length); got != tt.want {
+				t.Errorf("PadLeft() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func Test_pad_Right(t *testing.T) {
+func TestPadRight(t *testing.T) {
 	type args struct {
 		str       string
 		padString string
@@ -110,7 +108,6 @@ func Test_pad_Right(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		p    pad
 		args args
 		want string
 	}{
@@ -144,8 +141,8 @@ func Test_pad_Right(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.p.Right(tt.args.str, tt.args.padString, tt.args.length); got != tt.want {
-				t.Errorf("pad.Right() = %v, want %v", got, tt.want)
+			if got := PadRight(tt.args.str, tt.args.padString, tt.args.length); got != tt.want {
+				t.Errorf("PadRight() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -6,17 +6,15 @@ import (
 	"testing"
 )
 
-func Test_mapImpl_Interface(t *testing.T) {
-	zeroString := "0"
+func TestMap_int_string(t *testing.T) {
 	type args struct {
-		list interface{}
-		fn   interface{}
+		list []int
+		fn   func(value int) string
 	}
 	tests := []struct {
 		name string
-		m    mapImpl
 		args args
-		want interface{}
+		want []string
 	}{
 		{
 			name: "func([]int(nil)) == []string{}",
@@ -58,6 +56,27 @@ func Test_mapImpl_Interface(t *testing.T) {
 			},
 			want: []string{"0", "1"},
 		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Map(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Map() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMap_int_stringpointer(t *testing.T) {
+	zeroString := "0"
+	type args struct {
+		list []int
+		fn   func(value int) *string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []*string
+	}{
 		{
 			name: "func([]int{0}) == []*string{\"0\"}",
 			args: args{
@@ -69,6 +88,26 @@ func Test_mapImpl_Interface(t *testing.T) {
 			},
 			want: []*string{&zeroString},
 		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Map(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Map() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMap_intpointer_string(t *testing.T) {
+	type args struct {
+		list []*int
+		fn   func(value *int) string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
 		{
 			name: "func([]*int(nil)) == []string{}",
 			args: args{
@@ -82,8 +121,8 @@ func Test_mapImpl_Interface(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.m.Interface(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("mapImpl.Interface() = %v, want %v", got, tt.want)
+			if got := Map(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Map() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -2,10 +2,9 @@ package logger
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"os"
-
-	"golang.org/x/xerrors"
 )
 
 type envLog struct {
@@ -48,7 +47,7 @@ func (e *envLog) parseLog() (Log, error) {
 		return NewLogFile(level, x), nil
 	}
 
-	return nil, xerrors.New("不正なロガータイプです")
+	return nil, errors.New("不正なロガータイプです")
 }
 
 func init() {
@@ -69,7 +68,7 @@ func Initialize(v string) error {
 	}
 	for _, x := range logs {
 		if x.isValid() {
-			return xerrors.New("バリデーションチェックでエラーが発生しました")
+			return errors.New("バリデーションチェックでエラーが発生しました")
 		}
 		y, err := x.parseLog()
 		if err != nil {

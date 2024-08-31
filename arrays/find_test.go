@@ -5,22 +5,16 @@ import (
 	"testing"
 )
 
-func Test_find_Interface(t *testing.T) {
-	zero := 0
-	one := 1
+func TestFind_int(t *testing.T) {
 	type args struct {
-		list interface{}
-		fn   interface{}
-	}
-	type wants struct {
-		want1 interface{}
-		want2 bool
+		list []int
+		fn   func(value int) bool
 	}
 	tests := []struct {
 		name  string
-		f     find
 		args  args
-		wants wants
+		want1 int
+		want2 bool
 	}{
 		{
 			name: "func([]int(nil), true) == 0, false",
@@ -30,10 +24,8 @@ func Test_find_Interface(t *testing.T) {
 					return true
 				},
 			},
-			wants: wants{
-				want1: 0,
-				want2: false,
-			},
+			want1: 0,
+			want2: false,
 		},
 		{
 			name: "func([]int{}, true) == 0, false",
@@ -43,10 +35,8 @@ func Test_find_Interface(t *testing.T) {
 					return true
 				},
 			},
-			wants: wants{
-				0,
-				false,
-			},
+			want1: 0,
+			want2: false,
 		},
 		{
 			name: "func([]int{0}, v == 0) == 0, true",
@@ -56,10 +46,8 @@ func Test_find_Interface(t *testing.T) {
 					return v == 0
 				},
 			},
-			wants: wants{
-				0,
-				true,
-			},
+			want1: 0,
+			want2: true,
 		},
 		{
 			name: "func([]int{1}, v == 0) == 0, false",
@@ -69,10 +57,8 @@ func Test_find_Interface(t *testing.T) {
 					return v == 0
 				},
 			},
-			wants: wants{
-				want1: 0,
-				want2: false,
-			},
+			want1: 0,
+			want2: false,
 		},
 		{
 			name: "func([]int{0, 1}, v == 1) == 1, true",
@@ -82,10 +68,8 @@ func Test_find_Interface(t *testing.T) {
 					return v == 1
 				},
 			},
-			wants: wants{
-				1,
-				true,
-			},
+			want1: 1,
+			want2: true,
 		},
 		{
 			name: "func([]int{0, 1, 2}, v != 1) == 0, true",
@@ -95,23 +79,46 @@ func Test_find_Interface(t *testing.T) {
 					return v != 1
 				},
 			},
-			wants: wants{
-				want1: 0,
-				want2: true,
-			},
+			want1: 0,
+			want2: true,
 		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got1, got2 := Find(tt.args.list, tt.args.fn)
+			if got1 != tt.want1 {
+				t.Errorf("Find() got1 = %v, want %v", got1, tt.want1)
+			}
+			if !reflect.DeepEqual(got2, tt.want2) {
+				t.Errorf("Find() got2 = %v, want %v", got2, tt.want2)
+			}
+		})
+	}
+}
+
+func TestFind_intpointer(t *testing.T) {
+	zero := 0
+	one := 1
+	type args struct {
+		list []*int
+		fn   func(value *int) bool
+	}
+	tests := []struct {
+		name  string
+		args  args
+		want1 *int
+		want2 bool
+	}{
 		{
 			name: "func([]*int(nil), true) == []*int{}",
 			args: args{
 				list: []*int(nil),
-				fn: func(v int) bool {
+				fn: func(v *int) bool {
 					return true
 				},
 			},
-			wants: wants{
-				want1: (*int)(nil),
-				want2: false,
-			},
+			want1: (*int)(nil),
+			want2: false,
 		},
 		{
 			name: "func([]*int{0, 1}, true) == []*int{0, 1}",
@@ -124,17 +131,18 @@ func Test_find_Interface(t *testing.T) {
 					return true
 				},
 			},
-			wants: wants{
-				want1: &zero,
-				want2: true,
-			},
+			want1: &zero,
+			want2: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got1, got2 := tt.f.Interface(tt.args.list, tt.args.fn)
-			if !reflect.DeepEqual(got1, tt.wants.want1) || got2 != tt.wants.want2 {
-				t.Errorf("Interface() got1 = %v, want1 %v, got2 = %v, want2 = %v", got1, tt.wants.want1, got2, tt.wants.want2)
+			got1, got2 := Find(tt.args.list, tt.args.fn)
+			if got1 != tt.want1 {
+				t.Errorf("Find() got1 = %v, want %v", got1, tt.want1)
+			}
+			if !reflect.DeepEqual(got2, tt.want2) {
+				t.Errorf("Find() got2 = %v, want %v", got2, tt.want2)
 			}
 		})
 	}

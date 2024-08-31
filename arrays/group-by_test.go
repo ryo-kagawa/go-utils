@@ -5,21 +5,18 @@ import (
 	"testing"
 )
 
-func Test_groupByImpl_Interface(t *testing.T) {
-	zero := 0
+func TestGroupBy_int_int(t *testing.T) {
 	type args struct {
-		list interface{}
-		fn   interface{}
+		list []int
+		fn   func(value int) int
 	}
 	tests := []struct {
 		name string
-		m    groupByImpl
 		args args
-		want interface{}
+		want map[int][]int
 	}{
 		{
 			name: "func([]int(nil)) == map[int][]int{}",
-			m:    GroupBy,
 			args: args{
 				list: []int(nil),
 				fn: func(v int) int {
@@ -30,7 +27,6 @@ func Test_groupByImpl_Interface(t *testing.T) {
 		},
 		{
 			name: "func([]int{0}) == map[int][]int{0: {0}}",
-			m:    GroupBy,
 			args: args{
 				list: []int{0},
 				fn: func(v int) int {
@@ -43,7 +39,6 @@ func Test_groupByImpl_Interface(t *testing.T) {
 		},
 		{
 			name: "func([]int{0, 1, 0}) == map[int][]int{0: {0, 0}, 1: {1}}",
-			m:    GroupBy,
 			args: args{
 				list: []int{0, 1, 0},
 				fn: func(v int) int {
@@ -56,8 +51,41 @@ func Test_groupByImpl_Interface(t *testing.T) {
 			},
 		},
 		{
+			name: "func([]int{0, 1, 0}) == map[int][]int{0: {0, 0}, 1: {1}}",
+			args: args{
+				list: []int{0, 1, 0},
+				fn: func(v int) int {
+					return v
+				},
+			},
+			want: map[int][]int{
+				0: {0, 0},
+				1: {1},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GroupBy(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GroupBy() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGroupBy_intpointer_int(t *testing.T) {
+	zero := 0
+	type args struct {
+		list []*int
+		fn   func(value *int) int
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[int][]*int
+	}{
+		{
 			name: "func([]*int(nil)) == map[int][]*int{}",
-			m:    GroupBy,
 			args: args{
 				list: []*int(nil),
 				fn: func(v *int) int {
@@ -68,7 +96,6 @@ func Test_groupByImpl_Interface(t *testing.T) {
 		},
 		{
 			name: "func([]*int{0}) == map[int][]*int{0: {0}}",
-			m:    GroupBy,
 			args: args{
 				list: []*int{&zero},
 				fn: func(v *int) int {
@@ -82,8 +109,8 @@ func Test_groupByImpl_Interface(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.m.Interface(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("groupByImpl.Interface() = %v, want %v", got, tt.want)
+			if got := GroupBy(tt.args.list, tt.args.fn); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GroupBy() = %v, want %v", got, tt.want)
 			}
 		})
 	}
