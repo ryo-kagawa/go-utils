@@ -1,0 +1,28 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release Tag format is Semver
+        required: true
+
+jobs:
+  release:
+    if: ${{ github.event.inputs.tag }} =~ ^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+      - name: test
+        run: go test ./...
+      - name: vet
+        run: go vet ./...
+      - name: release
+        run: |
+          git tag ${{ github.event.inputs.tag }}
+          git push origin ${{ github.event.inputs.tag }}
