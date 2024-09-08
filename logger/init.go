@@ -3,7 +3,7 @@ package logger
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"os"
 )
 
@@ -34,7 +34,7 @@ func (e *envLog) parseLog() (Log, error) {
 	level := ParseLevel(e.Level)
 	switch ParseType(e.Type) {
 	case TypeNone:
-		return NewLogConsole(level, ioutil.Discard), nil
+		return NewLogConsole(level, io.Discard), nil
 	case TypeStandardOut:
 		return NewLogConsole(level, os.Stdout), nil
 	case TypeStandardError:
