@@ -1,0 +1,56 @@
+name: Code Check
+
+on:
+  pull_request:
+  workflow_call:
+
+env:
+  MATRIX_OS: "[\"macos-latest\", \"windows-latest\", \"ubuntu-latest\"]"
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      go-version: ${{ steps.matrix.outputs.go-version }}
+      os: ${{ steps.matrix.outputs.os }}
+    steps:
+      - name: make values
+        id: matrix
+        run: |
+          echo "go-version=$(curl -s https://go.dev/dl/?mode=json | jq -c '.[] | select(.stable == true) | .version[2:]' | jq -cs sort)" >> $GITHUB_OUTPUT
+          echo "os=$(echo '${{ env.MATRIX_OS }}' | jq -c)" >> $GITHUB_OUTPUT
+
+  code-check:
+    needs:
+      - matrix
+    strategy:
+      matrix:
+        go-version: ${{ fromJson(needs.matrix.outputs.go-version) }}
+        os: ${{ fromJson(needs.matrix.outputs.os) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: test
+        run: go test ./...
+      - name: vet
+        run: go vet ./...
+
+  code-check-mod:
+    needs:
+      - matrix
+    strategy:
+      matrix:
+        os: ${{ fromJson(needs.matrix.outputs.os) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+      - name: test
+        run: go test ./...
+      - name: vet
+        run: go vet ./...
