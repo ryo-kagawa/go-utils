@@ -17,6 +17,8 @@ jobs:
     if: ${{ github.event.inputs.tag }} =~ ^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)
     runs-on: ubuntu-latest
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
       - name: release
         run: |
           git tag ${{ github.event.inputs.tag }}
