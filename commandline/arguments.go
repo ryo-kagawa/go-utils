@@ -96,7 +96,6 @@ func ArgumentsParse[T any](arguments []string) (T, error) {
 			if err != nil {
 				return result, errors.Join(ErrorInvalidDefault, fmt.Errorf("invalid default fieldName: %s, fieldType: %s, default: %s", fieldType.Name, fieldType.Type.Name(), defaultValue))
 			}
-			errors.Join()
 			*valuePointer = int(intValue)
 		case reflect.String:
 			valuePointer := (*string)(unsafe.Pointer(fieldValue.UnsafeAddr()))
