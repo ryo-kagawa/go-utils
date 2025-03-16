@@ -1,3 +1,5 @@
+//go:build unix || plan9 || windows
+
 package commandline
 
 import (
@@ -11,24 +13,26 @@ import (
 )
 
 var (
-	ErrorEnvironmentVariableInvalidDefault error = errors.New("environment variable is invalid default")
-	ErrorEnvironmentVariableInvalidValue   error = errors.New("environment variable is invalid value")
-	ErrorEnvironmentVariableInvalidType    error = errors.New("environment variable is invalid type")
+	ErrorEnvironmentVariableInvalidDefault  error = errors.New("environment variable is invalid default")
+	ErrorEnvironmentVariableInvalidValue    error = errors.New("environment variable is invalid value")
+	ErrorEnvironmentVariableInvalidType     error = errors.New("environment variable is invalid type")
+	ErrorEnvironmentVariableInvalidValidate error = errors.New("environment variable is invalid validate")
 )
+
+type validator interface {
+	Validate() error
+}
 
 // Environment variables behave differently depending on the OS:
 //
-//	darwin: case sensitive.
-//	linux: case sensitive.
+//	Unix: case sensitive.
+//	Plan9: case sensitive.
 //	Windows: case insensitive.
 func EnvironmentVariableParse[T any]() (T, error) {
 	setKeyList := make([]string, 0)
 	var result T
 	resultType := reflect.TypeOf(result)
 	resultValue := reflect.ValueOf(&result)
-
-	a := os.Environ()
-	_ = a
 
 	for i := 0; i < resultType.NumField(); i++ {
 		fieldType := resultType.Field(i)
@@ -87,6 +91,12 @@ func EnvironmentVariableParse[T any]() (T, error) {
 			*valuePointer = defaultValue
 		default:
 			return result, errors.Join(ErrorEnvironmentVariableInvalidType, fmt.Errorf("invalid environment variable type fieldName: %s, fieldType: %s", fieldType.Name, fieldType.Type.Name()))
+		}
+	}
+
+	if validator, ok := any(&result).(validator); ok {
+		if err := validator.Validate(); err != nil {
+			return result, errors.Join(ErrorEnvironmentVariableInvalidValidate, err)
 		}
 	}
 
