@@ -6,7 +6,7 @@ on:
 
 env:
   GO_VERSIONS: "[\"1.22\", \"1.23\", \"1.24\", \"1.25\"]"
-  MATRIX_OS: "[\"macos-latest\", \"windows-latest\", \"ubuntu-latest\"]"
+  MATRIX_OS: "[\"macos-latest\", \"windows-latest\", \"windows-11-arm\", \"ubuntu-latest\", \"ubuntu-24.04-arm\"]"
 
 jobs:
   matrix:
