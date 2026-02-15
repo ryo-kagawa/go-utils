@@ -14,10 +14,19 @@ var (
 	ErrorInvalidArgument error = errors.New("invalid argument")
 	ErrorInvalidDefault  error = errors.New("invalid default")
 	ErrorInvalidType     error = errors.New("invalid type")
+	ErrorInvalidValidate error = errors.New("invalid validate")
 )
+
+type ArgumentAfter interface {
+	After(values []string) error
+}
+type ArgumentValidator interface {
+	Validate() error
+}
 
 func ArgumentsParse[T any](arguments []string) (T, error) {
 	setKeyList := make([]string, 0, len(arguments))
+	afterList := make([]string, 0, len(arguments))
 	var result T
 	resultType := reflect.TypeOf(result)
 	resultValue := reflect.ValueOf(&result)
@@ -74,7 +83,11 @@ func ArgumentsParse[T any](arguments []string) (T, error) {
 			}
 		}
 		if !argParseOk {
-			return result, errors.Join(ErrorInvalidArgument, fmt.Errorf("invalid argument not found target field argument: %s", arg))
+			if _, ok := any(&result).(ArgumentAfter); ok {
+				afterList = append(afterList, argKey)
+			} else {
+				return result, errors.Join(ErrorInvalidArgument, fmt.Errorf("invalid argument not found target field argument: %s", arg))
+			}
 		}
 	}
 
@@ -102,6 +115,18 @@ func ArgumentsParse[T any](arguments []string) (T, error) {
 			*valuePointer = defaultValue
 		default:
 			return result, errors.Join(ErrorInvalidType, fmt.Errorf("invalid type fieldName: %s, fieldType: %s", fieldType.Name, fieldType.Type.Name()))
+		}
+	}
+
+	if after, ok := any(&result).(ArgumentAfter); ok {
+		if err := after.After(afterList); err != nil {
+			return result, err
+		}
+	}
+
+	if validator, ok := any(&result).(ArgumentValidator); ok {
+		if err := validator.Validate(); err != nil {
+			return result, errors.Join(ErrorEnvironmentVariableInvalidValidate, err)
 		}
 	}
 
