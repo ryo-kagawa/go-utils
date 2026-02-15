@@ -1,6 +1,7 @@
 package commandline
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -353,6 +354,117 @@ func TestArgumentsParse_defaultStruct(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ArgumentsParse[defaultStruct](tt.args.arguments)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ArgumentParse() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ArgumentParse() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+type afterStruct struct {
+	afters []string
+}
+
+func (a *afterStruct) After(values []string) error {
+	if len(values) == 1 && values[0] == "error" {
+		return errors.New("test error case")
+	}
+	a.afters = values
+	return nil
+}
+
+func TestArgumentsParse_After(t *testing.T) {
+	type args struct {
+		arguments []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    afterStruct
+		wantErr bool
+	}{
+		{
+			name: "ArgumentParse([]string{\"a\"}) == afterStruct{afters: [\"a\"]}, nil",
+			args: args{
+				arguments: []string{"a"},
+			},
+			want: afterStruct{
+				afters: []string{"a"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "ArgumentParse([]string{\"error\"}) == afterStruct{}, error",
+			args: args{
+				arguments: []string{"error"},
+			},
+			want:    afterStruct{},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ArgumentsParse[afterStruct](tt.args.arguments)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ArgumentParse() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ArgumentParse() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+type validatorStruct struct {
+	valid bool `key:"valid"`
+}
+
+func (v *validatorStruct) Validate() error {
+	if !v.valid {
+		return errors.New("test error case")
+	}
+	return nil
+}
+
+func TestArgumentsParse_Validate(t *testing.T) {
+	type args struct {
+		arguments []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    validatorStruct
+		wantErr bool
+	}{
+		{
+			name: "ArgumentParse([]string{\"valid\"}) == validatorStruct{valid: true}, nil",
+			args: args{
+				arguments: []string{"valid"},
+			},
+			want: validatorStruct{
+				valid: true,
+			},
+			wantErr: false,
+		},
+		{
+			name: "ArgumentParse([]string{}) == validatorStruct{}, error",
+			args: args{
+				arguments: []string{},
+			},
+			want: validatorStruct{
+				valid: false,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ArgumentsParse[validatorStruct](tt.args.arguments)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ArgumentParse() error = %v, wantErr %v", err, tt.wantErr)
 				return
