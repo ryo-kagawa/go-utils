@@ -126,7 +126,7 @@ func ArgumentsParse[T any](arguments []string) (T, error) {
 
 	if validator, ok := any(&result).(ArgumentValidator); ok {
 		if err := validator.Validate(); err != nil {
-			return result, errors.Join(ErrorEnvironmentVariableInvalidValidate, err)
+			return result, errors.Join(ErrorInvalidValidate, err)
 		}
 	}
 
