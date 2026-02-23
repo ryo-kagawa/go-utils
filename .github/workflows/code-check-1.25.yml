@@ -262,9 +262,9 @@ jobs:
       matrix:
         target:
           - runner: windows-2022
-            name: windows/amd64(Widnows Server 2022)
+            name: windows/amd64(Windows Server 2022)
           - runner: windows-2025
-            name: windows/amd64(Widnows Server 2025)
+            name: windows/amd64(Windows Server 2025)
     name: ${{ matrix.target.name }}
     runs-on: ${{ matrix.target.runner }}
     steps:
