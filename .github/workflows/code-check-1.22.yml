@@ -19,7 +19,7 @@ jobs:
 
   darwin-arm64:
     strategy:
-      fail-fast: false  
+      fail-fast: false
       matrix:
         target:
           - runner: macos-14
@@ -42,7 +42,7 @@ jobs:
 
   freebsd-amd64:
     strategy:
-      fail-fast: false  
+      fail-fast: false
       matrix:
         version:
           - '12.4'
@@ -71,7 +71,7 @@ jobs:
 
   freebsd-arm64:
     strategy:
-      fail-fast: false  
+      fail-fast: false
       matrix:
         version:
           - '12.4'
@@ -126,7 +126,7 @@ jobs:
 
   windows-amd64:
     strategy:
-      fail-fast: false  
+      fail-fast: false
       matrix:
         target:
           - runner: windows-2022
