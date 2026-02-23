@@ -124,6 +124,75 @@ jobs:
       - name: vet
         run: go vet ./...
 
+  openbsd-amd64:
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '6.8'
+          - '6.9'
+          - '7.1'
+          - '7.2'
+          - '7.3'
+          - '7.4'
+          - '7.5'
+          - '7.6'
+          - '7.7'
+          - '7.8'
+    name: openbsd/amd64(OpenBSD ${{ matrix.version }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cross-platform-actions/action@v0.32.0
+        with:
+          operating_system: openbsd
+          version: ${{ matrix.version }}
+          architecture: x86-64
+          shell: bash
+          run: |
+            cd /tmp &&
+            ftp -o go1.22.12.openbsd-amd64.tar.gz https://go.dev/dl/go1.22.12.openbsd-amd64.tar.gz &&
+            tar -xzf go1.22.12.openbsd-amd64.tar.gz &&
+            export PATH=$PATH:/tmp/go/bin &&
+            cd ${GITHUB_WORKSPACE} &&
+            go mod download &&
+            go test ./... &&
+            go vet ./...
+
+  openbsd-arm64:
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '6.9'
+          - '7.1'
+          - '7.2'
+          - '7.3'
+          - '7.4'
+          - '7.5'
+          - '7.6'
+          - '7.7'
+          - '7.8'
+    name: openbsd/arm64(OpenBSD ${{ matrix.version }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cross-platform-actions/action@v0.32.0
+        with:
+          operating_system: openbsd
+          version: ${{ matrix.version }}
+          architecture: arm64
+          shell: bash
+          run: |
+            cd /tmp &&
+            ftp -o go1.22.12.openbsd-arm64.tar.gz https://go.dev/dl/go1.22.12.openbsd-arm64.tar.gz &&
+            tar -xzf go1.22.12.openbsd-arm64.tar.gz &&
+            export PATH=$PATH:/tmp/go/bin &&
+            cd ${GITHUB_WORKSPACE} &&
+            go mod download &&
+            go test ./... &&
+            go vet ./...
+
   windows-amd64:
     strategy:
       fail-fast: false
