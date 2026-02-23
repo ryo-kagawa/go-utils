@@ -124,6 +124,63 @@ jobs:
       - name: vet
         run: go vet ./...
 
+  netbsd-amd64:
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '9.2'
+          - '9.3'
+          - '9.4'
+          - '10.0'
+          - '10.1'
+    name: netbsd/amd64(NetBSD ${{ matrix.version }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cross-platform-actions/action@v0.32.0
+        with:
+          operating_system: netbsd
+          version: ${{ matrix.version }}
+          architecture: x86-64
+          shell: bash
+          run: |
+            cd /tmp &&
+            ftp -o go1.24.13.netbsd-amd64.tar.gz https://go.dev/dl/go1.24.13.netbsd-amd64.tar.gz &&
+            tar -xzf go1.24.13.netbsd-amd64.tar.gz &&
+            export PATH=$PATH:/tmp/go/bin &&
+            cd ${GITHUB_WORKSPACE} &&
+            go mod download &&
+            go test ./... &&
+            go vet ./...
+
+  netbsd-arm64:
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '10.0'
+          - '10.1'
+    name: netbsd/arm64(NetBSD ${{ matrix.version }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cross-platform-actions/action@v0.32.0
+        with:
+          operating_system: netbsd
+          version: ${{ matrix.version }}
+          architecture: arm64
+          shell: bash
+          run: |
+            cd /tmp &&
+            ftp -o go1.24.13.netbsd-arm64.tar.gz https://go.dev/dl/go1.24.13.netbsd-arm64.tar.gz &&
+            tar -xzf go1.24.13.netbsd-arm64.tar.gz &&
+            export PATH=$PATH:/tmp/go/bin &&
+            cd ${GITHUB_WORKSPACE} &&
+            go mod download &&
+            go test ./... &&
+            go vet ./...
+
   openbsd-amd64:
     strategy:
       fail-fast: false
