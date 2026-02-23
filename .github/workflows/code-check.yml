@@ -4,10 +4,6 @@ on:
   pull_request:
   workflow_call:
 
-env:
-  GO_VERSIONS: "[\"1.25\"]"
-  MATRIX_OS: "[\"macos-latest\", \"windows-latest\", \"windows-11-arm\", \"ubuntu-latest\", \"ubuntu-24.04-arm\"]"
-
 jobs:
   code-check-1_22:
     name: Go 1.22
@@ -21,32 +17,6 @@ jobs:
     name: Go 1.24
     uses: ./.github/workflows/code-check-1.24.yml
 
-  matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      go-version: ${{ steps.matrix.outputs.go-version }}
-      os: ${{ steps.matrix.outputs.os }}
-    steps:
-      - name: make values
-        id: matrix
-        run: |
-          echo "go-version=$(echo ${{ env.GO_VERSIONS }} | jq -c)" >> $GITHUB_OUTPUT
-          echo "os=$(echo '${{ env.MATRIX_OS }}' | jq -c)" >> $GITHUB_OUTPUT
-
-  code-check:
-    needs:
-      - matrix
-    strategy:
-      matrix:
-        go-version: ${{ fromJson(needs.matrix.outputs.go-version) }}
-        os: ${{ fromJson(needs.matrix.outputs.os) }}
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
-        with:
-          go-version: ${{ matrix.go-version }}
-      - name: test
-        run: go test ./...
-      - name: vet
-        run: go vet ./...
+  code-check-1_25:
+    name: Go 1.25
+    uses: ./.github/workflows/code-check-1.25.yml
