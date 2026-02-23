@@ -1,0 +1,159 @@
+name: Code Check 1.25
+
+on:
+  workflow_call:
+
+jobs:
+  darwin-amd64:
+    name: darwin/amd64(macOS 15)
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: test
+        run: go test ./...
+      - name: vet
+        run: go vet ./...
+
+  darwin-arm64:
+    strategy:
+      fail-fast: false  
+      matrix:
+        target:
+          - runner: macos-14
+            name: darwin/arm64(macOS 14)
+          - runner: macos-15
+            name: darwin/arm64(macOS 15)
+          - runner: macos-26
+            name: darwin/arm64(macOS 26)
+    name: ${{ matrix.target.name }}
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: test
+        run: go test ./...
+      - name: vet
+        run: go vet ./...
+
+  freebsd-amd64:
+    strategy:
+      fail-fast: false  
+      matrix:
+        version:
+          - '12.4'
+          - '13.5'
+          - '14.3'
+          - '15.0'
+    name: freebsd/amd64(FreeBSD ${{ matrix.version }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cross-platform-actions/action@v0.32.0
+        with:
+          operating_system: freebsd
+          version: ${{ matrix.version }}
+          architecture: x86-64
+          shell: bash
+          run: |
+            cd /tmp &&
+            fetch https://go.dev/dl/go1.25.7.freebsd-amd64.tar.gz &&
+            tar -xzf go1.25.7.freebsd-amd64.tar.gz &&
+            export PATH=$PATH:/tmp/go/bin &&
+            cd ${GITHUB_WORKSPACE} &&
+            go mod download &&
+            go test ./... &&
+            go vet ./...
+
+  freebsd-arm64:
+    strategy:
+      fail-fast: false  
+      matrix:
+        version:
+          - '12.4'
+          - '13.5'
+          - '14.3'
+          - '15.0'
+    name: freebsd/arm64(FreeBSD ${{ matrix.version }})
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cross-platform-actions/action@v0.32.0
+        with:
+          operating_system: freebsd
+          version: ${{ matrix.version }}
+          architecture: arm64
+          shell: bash
+          run: |
+            cd /tmp &&
+            fetch https://go.dev/dl/go1.25.7.freebsd-arm64.tar.gz &&
+            tar -xzf go1.25.7.freebsd-arm64.tar.gz &&
+            export PATH=$PATH:/tmp/go/bin &&
+            cd ${GITHUB_WORKSPACE} &&
+            go mod download &&
+            go test ./... &&
+            go vet ./...
+
+  linux-amd64:
+    name: linux/amd64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: test
+        run: go test ./...
+      - name: vet
+        run: go vet ./...
+
+  linux-arm64:
+    name: linux/arm64
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: test
+        run: go test ./...
+      - name: vet
+        run: go vet ./...
+
+  windows-amd64:
+    strategy:
+      fail-fast: false  
+      matrix:
+        target:
+          - runner: windows-2022
+            name: windows/amd64(Widnows Server 2022)
+          - runner: windows-2025
+            name: windows/amd64(Widnows Server 2025)
+    name: ${{ matrix.target.name }}
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: test
+        run: go test ./...
+      - name: vet
+        run: go vet ./...
+
+  windows-arm64:
+    name: windows/arm64(Windows 11)
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: test
+        run: go test ./...
+      - name: vet
+        run: go vet ./...
