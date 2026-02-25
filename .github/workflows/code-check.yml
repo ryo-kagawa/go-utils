@@ -20,3 +20,7 @@ jobs:
   code-check-1_25:
     name: Go 1.25
     uses: ./.github/workflows/code-check-1.25.yml
+
+  code-check-1_26:
+    name: Go 1.26
+    uses: ./.github/workflows/code-check-1.26.yml
