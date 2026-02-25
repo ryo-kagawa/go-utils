@@ -8,8 +8,18 @@ env:
 
 jobs:
   darwin-amd64:
-    name: darwin/amd64(macOS 15)
-    runs-on: macos-15-intel
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          # - runner: macos-14-large
+          #   name: darwin/arm64(macOS 14)
+          - runner: macos-15-intel
+            name: darwin/arm64(macOS 15)
+          # - runner: macos-26-large
+          #   name: darwin/arm64(macOS 26)
+    name: ${{ matrix.target.name }}
+    runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
@@ -48,8 +58,17 @@ jobs:
       fail-fast: false
       matrix:
         version:
+          - '12.2'
           - '12.4'
+          - '13.0'
+          - '13.1'
+          - '13.2'
+          - '13.3'
+          - '13.4'
           - '13.5'
+          - '14.0'
+          - '14.1'
+          - '14.2'
           - '14.3'
           - '15.0'
     name: freebsd/amd64(FreeBSD ${{ matrix.version }})
@@ -91,7 +110,15 @@ jobs:
       matrix:
         version:
           - '12.4'
+          - '13.0'
+          - '13.1'
+          - '13.2'
+          - '13.3'
+          - '13.4'
           - '13.5'
+          - '14.0'
+          - '14.1'
+          - '14.2'
           - '14.3'
           - '15.0'
     name: freebsd/arm64(FreeBSD ${{ matrix.version }})
@@ -128,8 +155,16 @@ jobs:
             go vet ./...
 
   linux-amd64:
-    name: linux/amd64
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - runner: ubuntu-22.04
+            name: linux/amd64(Ubuntu 22.04)
+          - runner: ubuntu-24.04
+            name: linux/amd64(Ubuntu 24.04)
+    name: ${{ matrix.target.name }}
+    runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
@@ -141,8 +176,16 @@ jobs:
         run: go vet ./...
 
   linux-arm64:
-    name: linux/arm64
-    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - runner: ubuntu-22.04-arm
+            name: linux/arm64(Ubuntu 22.04)
+          - runner: ubuntu-24.04-arm
+            name: linux/arm64(Ubuntu 24.04)
+    name: ${{ matrix.target.name }}
+    runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
