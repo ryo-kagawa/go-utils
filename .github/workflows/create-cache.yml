@@ -1,0 +1,102 @@
+name: Create Cache
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+  workflow_dispatch:
+
+jobs:
+  create-cache:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - version: 1.22.12
+            os: freebsd
+            arch: amd64
+          - version: 1.22.12
+            os: freebsd
+            arch: arm64
+          - version: 1.22.12
+            os: netbsd
+            arch: amd64
+          - version: 1.22.12
+            os: netbsd
+            arch: arm64
+          - version: 1.22.12
+            os: openbsd
+            arch: amd64
+          - version: 1.22.12
+            os: openbsd
+            arch: arm64
+          - version: 1.23.12
+            os: freebsd
+            arch: amd64
+          - version: 1.23.12
+            os: freebsd
+            arch: arm64
+          - version: 1.23.12
+            os: netbsd
+            arch: amd64
+          - version: 1.23.12
+            os: netbsd
+            arch: arm64
+          - version: 1.23.12
+            os: openbsd
+            arch: amd64
+          - version: 1.23.12
+            os: openbsd
+            arch: arm64
+          - version: 1.24.13
+            os: freebsd
+            arch: amd64
+          - version: 1.24.13
+            os: freebsd
+            arch: arm64
+          - version: 1.24.13
+            os: netbsd
+            arch: amd64
+          - version: 1.24.13
+            os: netbsd
+            arch: arm64
+          - version: 1.24.13
+            os: openbsd
+            arch: amd64
+          - version: 1.24.13
+            os: openbsd
+            arch: arm64
+          - version: 1.25.7
+            os: freebsd
+            arch: amd64
+          - version: 1.25.7
+            os: freebsd
+            arch: arm64
+          - version: 1.25.7
+            os: netbsd
+            arch: amd64
+          - version: 1.25.7
+            os: netbsd
+            arch: arm64
+          - version: 1.25.7
+            os: openbsd
+            arch: amd64
+          - version: 1.25.7
+            os: openbsd
+            arch: arm64
+    name: ${{ matrix.target.version }} ${{ matrix.target.os }}/${{ matrix.target.arch }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/tmp/go
+          key: go${{ matrix.target.version }}.${{ matrix.target.os }}-${{ matrix.target.arch }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir tmp
+          cd tmp
+          curl --location --output go${{ matrix.target.version }}.${{ matrix.target.os }}-${{ matrix.target.arch }}.tar.gz https://go.dev/dl/go${{ matrix.target.version }}.${{ matrix.target.os }}-${{ matrix.target.arch }}.tar.gz
+          tar -xzf go${{ matrix.target.version }}.${{ matrix.target.os }}-${{ matrix.target.arch }}.tar.gz
