@@ -24,3 +24,7 @@ jobs:
   create-cache-1_25:
     name: Go 1.25
     uses: ./.github/workflows/create-cache-1.25.yml
+
+  create-cache-1_26:
+    name: Go 1.26
+    uses: ./.github/workflows/create-cache-1.26.yml
