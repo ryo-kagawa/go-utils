@@ -1,0 +1,90 @@
+name: Create Cache 1.22
+
+on:
+  workflow_call:
+
+env:
+  GO_VERSION: 1.22.12
+
+jobs:
+  create-cache-runner:
+    strategy:
+      fail-fast: false
+      matrix:
+          target:
+            # - runner: macos-14-large
+            #   name: darwin/amd64(macOS 14)
+            - runner: macos-15-intel
+              name: darwin/amd64(macOS 15)
+            # - runner: macos-26-large
+            #   name: darwin/amd64(macOS 26)
+            - runner: macos-14
+              name: darwin/arm64(macOS 14)
+            - runner: macos-15
+              name: darwin/arm64(macOS 15)
+            - runner: macos-26
+              name: darwin/arm64(macOS 26)
+            - runner: ubuntu-22.04
+              name: linux/amd64(Ubuntu 22.04)
+            - runner: ubuntu-24.04
+              name: linux/amd64(Ubuntu 24.04)
+            - runner: ubuntu-22.04-arm
+              name: linux/arm64(Ubuntu 22.04)
+            - runner: ubuntu-24.04-arm
+              name: linux/arm64(Ubuntu 24.04)
+            - runner: windows-2022
+              name: windows/amd64(Windows Server 2022)
+            - runner: windows-2025
+              name: windows/amd64(Windows Server 2025)
+            - runner: windows-11-arm
+              name: windows/arm64(Windows 11)
+    name: ${{ matrix.target.name }}
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+  create-cache-binary:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - os: freebsd
+            arch: amd64
+          - os: freebsd
+            arch: arm64
+          - os: netbsd
+            arch: amd64
+          - os: netbsd
+            arch: arm64
+          - os: openbsd
+            arch: amd64
+          - os: openbsd
+            arch: arm64
+          - os: freebsd
+            arch: amd64
+          - os: freebsd
+            arch: arm64
+          - os: netbsd
+            arch: amd64
+          - os: netbsd
+            arch: arm64
+          - os: openbsd
+            arch: amd64
+          - os: openbsd
+            arch: arm64
+    name: ${{ matrix.target.os }}/${{ matrix.target.arch }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/tmp/go
+          key: go${{ env.GO_VERSION }}.${{ matrix.target.os }}-${{ matrix.target.arch }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir tmp
+          cd tmp
+          curl --location --output go${{ env.GO_VERSION }}.${{ matrix.target.os }}-${{ matrix.target.arch }}.tar.gz https://go.dev/dl/go${{ env.GO_VERSION }}.${{ matrix.target.os }}-${{ matrix.target.arch }}.tar.gz
+          tar -xzf go${{ env.GO_VERSION }}.${{ matrix.target.os }}-${{ matrix.target.arch }}.tar.gz
