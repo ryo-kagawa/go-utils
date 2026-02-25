@@ -95,6 +95,7 @@ jobs:
           operating_system: freebsd
           version: ${{ matrix.version }}
           architecture: x86-64
+          cpu_count: 4
           sync_files: runner-to-vm
           shell: bash
           run: |
@@ -145,6 +146,7 @@ jobs:
           operating_system: freebsd
           version: ${{ matrix.version }}
           architecture: arm64
+          cpu_count: 4
           sync_files: runner-to-vm
           shell: bash
           run: |
@@ -230,6 +232,7 @@ jobs:
           operating_system: netbsd
           version: ${{ matrix.version }}
           architecture: x86-64
+          cpu_count: 4
           sync_files: runner-to-vm
           shell: bash
           run: |
@@ -270,6 +273,7 @@ jobs:
           operating_system: netbsd
           version: ${{ matrix.version }}
           architecture: arm64
+          cpu_count: 4
           sync_files: runner-to-vm
           shell: bash
           run: |
@@ -318,6 +322,7 @@ jobs:
           operating_system: openbsd
           version: ${{ matrix.version }}
           architecture: x86-64
+          cpu_count: 4
           sync_files: runner-to-vm
           shell: bash
           run: |
@@ -365,6 +370,7 @@ jobs:
           operating_system: openbsd
           version: ${{ matrix.version }}
           architecture: arm64
+          cpu_count: 4
           sync_files: runner-to-vm
           shell: bash
           run: |
