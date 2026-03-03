@@ -7,7 +7,7 @@ import (
 	"hash"
 )
 
-var digitsPower = [11]int{
+var digitsPower = [11]int64{
 	1,
 	10,
 	100,
@@ -31,7 +31,7 @@ func Generate(
 	binary.Write(hmacHash, binary.BigEndian, timeSteps)
 	hash := hmacHash.Sum(nil)
 	offset := hash[len(hash)-1] & 0x0F
-	binary := int(binary.BigEndian.Uint32(hash[offset:offset+4]) & 0x7FFFFFFF)
+	binary := int64(binary.BigEndian.Uint32(hash[offset:offset+4]) & 0x7FFFFFFF)
 	otp := fmt.Sprintf("%0*d", digits, binary%digitsPower[digits])
 	return otp
 }
