@@ -1,0 +1,45 @@
+name: Code Check windows/amd64
+
+on:
+  workflow_call:
+    inputs:
+      go_version:
+        required: true
+        type: string
+      os_version:
+        required: true
+        type: string
+
+env:
+  TARGET: |
+    {
+      "2022": {
+        runner: "windows-2022",
+      },
+      "2025": {
+        runner: "windows-2025",
+      },
+    }
+
+jobs:
+  prepare:
+    outputs:
+      runner: ${{ steps.set.outputs.runner }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: set
+        run: |
+          echo "runner=${{ fromJson(env.TARGET)[inputs.os_version].runner }}" >> $GITHUB_OUTPUT
+
+  windows-amd64:
+    needs:
+      - prepare
+    name: windows/amd64(Windows Server ${{ inputs.os_version }})
+    runs-on: ${{ needs.prepare.outputs.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ inputs.go_version }}
+      - run: go vet ./...
+      - run: go test ./...

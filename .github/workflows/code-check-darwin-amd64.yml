@@ -1,0 +1,48 @@
+name: Code Check darwin/amd64
+
+on:
+  workflow_call:
+    inputs:
+      go_version:
+        required: true
+        type: string
+      os_version:
+        required: true
+        type: string
+
+env:
+  TARGET: |
+    {
+      "14": {
+        runner: "macos-14-large",
+      },
+      "15": {
+        runner: "macos-15-intel",
+      },
+      "26": {
+        runner: "macos-26-large",
+      },
+    }
+
+jobs:
+  prepare:
+    outputs:
+      runner: ${{ steps.set.outputs.runner }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: set
+        run: |
+          echo "runner=${{ fromJson(env.TARGET)[inputs.os_version].runner }}" >> $GITHUB_OUTPUT
+
+  darwin-amd64:
+    needs:
+      - prepare
+    name: darwin/amd64(macOS ${{ inputs.os_version }})
+    runs-on: ${{ needs.prepare.outputs.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ inputs.go_version }}
+      - run: go vet ./...
+      - run: go test ./...
