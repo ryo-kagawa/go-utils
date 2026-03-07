@@ -4,52 +4,51 @@ on:
   workflow_call:
 
 env:
-  GO_VERSION: 1.25.7
+  GO_VERSION: 1.25.8
 
 jobs:
+  prepare:
+    outputs:
+      go_version: ${{ steps.set.outputs.go_version }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: set
+        run: |
+          echo "go_version=${{ env.GO_VERSION }}" >> $GITHUB_OUTPUT
+
   darwin-amd64:
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
-        target:
-          # - runner: macos-14-large
-          #   name: macOS 14
-          - runner: macos-15-intel
-            name: macOS 15
-          # - runner: macos-26-large
-          #   name: macOS 26
-    name: darwin/amd64(${{ matrix.target.name }})
-    runs-on: ${{ matrix.target.runner }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - run: go vet ./...
-      - run: go test ./...
+        version:
+          - "15"
+    name: darwin/amd64
+    uses: ./.github/workflows/code-check-darwin-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
 
   darwin-arm64:
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - runner: macos-14
-            name: macOS 14
-          - runner: macos-15
-            name: macOS 15
-          - runner: macos-26
-            name: macOS 26
-    name: darwin/arm64(${{ matrix.target.name }})
-    runs-on: ${{ matrix.target.runner }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - run: go vet ./...
-      - run: go test ./...
+        version:
+          - "14"
+          - "15"
+          - "26"
+    name: darwin/arm64
+    uses: ./.github/workflows/code-check-darwin-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
 
   freebsd-amd64:
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
@@ -67,43 +66,15 @@ jobs:
           - '14.2'
           - '14.3'
           - '15.0'
-    name: freebsd/amd64(FreeBSD ${{ matrix.version }})
-    runs-on: ubuntu-latest
-    env:
-      GOOS: freebsd
-      GOARCH: amd64
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir tmp
-          cd tmp
-          curl --location --output go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          tar -xzf go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          rm go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-      - uses: cross-platform-actions/action@v0.32.0
-        with:
-          operating_system: freebsd
-          version: ${{ matrix.version }}
-          architecture: x86-64
-          cpu_count: 1
-          sync_files: runner-to-vm
-          shell: bash
-          run: |
-            mv ${{ github.workspace }}/tmp/go /tmp/go
-            export PATH=$PATH:/tmp/go/bin
-            pkgs=$(go list -f '{{ .ImportPath }}' ./...)
-            for pkg in ${pkgs}; do
-              go vet ${pkg}
-            done
-            GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
+    name: freebsd/amd64
+    uses: ./.github/workflows/code-check-freebsd-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
 
   freebsd-arm64:
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
@@ -120,548 +91,95 @@ jobs:
           - '14.2'
           - '14.3'
           - '15.0'
-    name: freebsd/arm64(FreeBSD ${{ matrix.version }})
-    runs-on: ubuntu-latest
-    env:
-      GOOS: freebsd
-      GOARCH: arm64
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir tmp
-          cd tmp
-          curl --location --output go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          tar -xzf go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          rm go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-      - uses: cross-platform-actions/action@v0.32.0
-        with:
-          operating_system: freebsd
-          version: ${{ matrix.version }}
-          architecture: arm64
-          cpu_count: 1
-          sync_files: runner-to-vm
-          shell: bash
-          run: |
-            mv ${{ github.workspace }}/tmp/go /tmp/go
-            export PATH=$PATH:/tmp/go/bin
-            pkgs=$(go list -f '{{ .ImportPath }}' ./...)
-            for pkg in ${pkgs}; do
-              go vet ${pkg}
-            done
-            GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
+    name: freebsd/arm64
+    uses: ./.github/workflows/code-check-freebsd-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
 
   linux-386:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04
-          - ubuntu-24.04
-        target:
-          - image: i386/debian:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: i386/debian:latest
-            name: GNU C Library
-            cgo: 1
-          - image: i386/alpine:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/386 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: 386
-      PLATFORM: linux/386
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              go vet ./... &&
-              go test ./... &&
-              GO386=softfloat go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/386
+    uses: ./.github/workflows/code-check-linux-386.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-amd64:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04
-          - ubuntu-24.04
-        target:
-          - image: amd64/debian:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: amd64/debian:latest
-            name: GNU C Library
-            cgo: 1
-          - image: amd64/alpine:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/amd64 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: amd64
-      PLATFORM: linux/amd64
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              go vet ./... &&
-              go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/386
+    uses: ./.github/workflows/code-check-linux-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-arm-v5:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04-arm
-          - ubuntu-24.04-arm
-        target:
-          - image: arm32v5/debian:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: arm32v5/debian:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/arm v5 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: arm
-      PLATFORM: linux/arm/v5
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}v6l
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}v6l.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              export GOARM=5 &&
-              go vet ./... &&
-              go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/arm v5
+    uses: ./.github/workflows/code-check-linux-arm-v5.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-arm-v6:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04-arm
-          - ubuntu-24.04-arm
-        target:
-          - image: arm32v6/alpine:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: arm32v6/alpine:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/arm v6 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: arm
-      PLATFORM: linux/arm/v6
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}v6l
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}v6l.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              export GOARM=6 &&
-              go vet ./... &&
-              go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/arm v6
+    uses: ./.github/workflows/code-check-linux-arm-v6.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-arm-v7:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04-arm
-          - ubuntu-24.04-arm
-        target:
-          - image: arm32v7/debian:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: arm32v7/debian:latest
-            name: GNU C Library
-            cgo: 1
-          - image: arm32v7/alpine:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/arm v7 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: arm
-      PLATFORM: linux/arm/v7
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}v6l
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}v6l.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              export GOARM=7 &&
-              go vet ./... &&
-              go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/arm v7
+    uses: ./.github/workflows/code-check-linux-arm-v7.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-arm64:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04-arm
-          - ubuntu-24.04-arm
-        target:
-          - image: arm64v8/debian:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: arm64v8/debian:latest
-            name: GNU C Library
-            cgo: 1
-          - image: arm64v8/alpine:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/arm64 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: arm64
-      PLATFORM: linux/arm64/v8
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              go vet ./... &&
-              go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/arm64
+    uses: ./.github/workflows/code-check-linux-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-mips64le:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04
-          - ubuntu-24.04
-        target:
-          - image: mips64le/debian:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: mips64le/debian:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/mips64le ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: mips64le
-      PLATFORM: linux/mips64le
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              go vet ./... &&
-              go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/mips64le
+    uses: ./.github/workflows/code-check-linux-mips64le.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-ppc64le:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04
-          - ubuntu-24.04
-        target:
-          - image: ppc64le/debian:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: ppc64le/debian:latest
-            name: GNU C Library
-            cgo: 1
-          - image: ppc64le/alpine:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/ppc64le ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: ppc64le
-      PLATFORM: linux/ppc64le
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              go vet ./... &&
-              go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/ppc64le
+    uses: ./.github/workflows/code-check-linux-ppc64le.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-riscv64:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04
-          - ubuntu-24.04
-        target:
-          - image: riscv64/debian:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: riscv64/debian:latest
-            name: GNU C Library
-            cgo: 1
-          - image: riscv64/alpine:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/riscv64 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: riscv64
-      PLATFORM: linux/riscv64
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              go vet ./... &&
-              go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/riscv64
+    uses: ./.github/workflows/code-check-linux-riscv64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-s390x:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner:
-          - ubuntu-22.04
-          - ubuntu-24.04
-        target:
-          - image: s390x/debian:latest
-            name: CGO_ENABLED=0
-            cgo: 0
-          - image: s390x/debian:latest
-            name: GNU C Library
-            cgo: 1
-          - image: s390x/alpine:latest
-            name: GNU C Library
-            cgo: 1
-    name: linux/s390x ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
-    env:
-      GOOS: linux
-      GOARCH: s390x
-      PLATFORM: linux/s390x
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: /tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz | tar -xzf - -C /tmp
-      - uses: docker/setup-qemu-action@v3
-        with:
-          platforms: ${{ env.PLATFORM }}
-      - run: |
-          docker run \
-            --rm \
-            -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
-            -w /workspace \
-            --platform ${{ env.PLATFORM }} \
-            ${{ matrix.target.image }} \
-            sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
-              export CGO_ENABLED=${{ matrix.target.cgo }} &&
-              go vet ./... &&
-              go test ./...
-            "
+    needs:
+      - prepare
+    name: linux/s390x
+    uses: ./.github/workflows/code-check-linux-s390x.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   netbsd-amd64:
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
@@ -671,86 +189,30 @@ jobs:
           - '9.4'
           - '10.0'
           - '10.1'
-    name: netbsd/amd64(NetBSD ${{ matrix.version }})
-    env:
-      GOOS: netbsd
-      GOARCH: amd64
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir tmp
-          cd tmp
-          curl --location --output go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          tar -xzf go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          rm go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-      - uses: cross-platform-actions/action@v0.32.0
-        with:
-          operating_system: netbsd
-          version: ${{ matrix.version }}
-          architecture: x86-64
-          cpu_count: 1
-          sync_files: runner-to-vm
-          shell: bash
-          run: |
-            mv ${{ github.workspace }}/tmp/go /tmp/go
-            export PATH=$PATH:/tmp/go/bin
-            pkgs=$(go list -f '{{ .ImportPath }}' ./...)
-            for pkg in ${pkgs}; do
-              go vet ${pkg}
-            done
-            GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
+    name: netbsd/amd64
+    uses: ./.github/workflows/code-check-netbsd-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
 
   netbsd-arm64:
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
         version:
           - '10.0'
           - '10.1'
-    name: netbsd/arm64(NetBSD ${{ matrix.version }})
-    runs-on: ubuntu-latest
-    env:
-      GOOS: netbsd
-      GOARCH: arm64
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir tmp
-          cd tmp
-          curl --location --output go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          tar -xzf go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          rm go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-      - uses: cross-platform-actions/action@v0.32.0
-        with:
-          operating_system: netbsd
-          version: ${{ matrix.version }}
-          architecture: arm64
-          cpu_count: 1
-          sync_files: runner-to-vm
-          shell: bash
-          run: |
-            mv ${{ github.workspace }}/tmp/go /tmp/go
-            export PATH=$PATH:/tmp/go/bin
-            pkgs=$(go list -f '{{ .ImportPath }}' ./...)
-            for pkg in ${pkgs}; do
-              go vet ${pkg}
-            done
-            GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
+    name: netbsd/arm64
+    uses: ./.github/workflows/code-check-netbsd-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
 
   openbsd-amd64:
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
@@ -765,43 +227,15 @@ jobs:
           - '7.6'
           - '7.7'
           - '7.8'
-    name: openbsd/amd64(OpenBSD ${{ matrix.version }})
-    runs-on: ubuntu-latest
-    env:
-      GOOS: openbsd
-      GOARCH: amd64
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir tmp
-          cd tmp
-          curl --location --output go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          tar -xzf go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          rm go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-      - uses: cross-platform-actions/action@v0.32.0
-        with:
-          operating_system: openbsd
-          version: ${{ matrix.version }}
-          architecture: x86-64
-          cpu_count: 1
-          sync_files: runner-to-vm
-          shell: bash
-          run: |
-            mv ${{ github.workspace }}/tmp/go /tmp/go
-            export PATH=$PATH:/tmp/go/bin
-            pkgs=$(go list -f '{{ .ImportPath }}' ./...)
-            for pkg in ${pkgs}; do
-              go vet ${pkg}
-            done
-            GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
+    name: openbsd/amd64
+    uses: ./.github/workflows/code-check-openbsd-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
 
   openbsd-arm64:
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
@@ -815,68 +249,37 @@ jobs:
           - '7.6'
           - '7.7'
           - '7.8'
-    name: openbsd/arm64(OpenBSD ${{ matrix.version }})
-    runs-on: ubuntu-latest
-    env:
-      GOOS: openbsd
-      GOARCH: arm64
-    steps:
-      - uses: actions/checkout@v6
-      - id: cache
-        uses: actions/cache@v5
-        with:
-          path: ${{ github.workspace }}/tmp/go
-          key: go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          mkdir tmp
-          cd tmp
-          curl --location --output go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz https://go.dev/dl/go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          tar -xzf go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-          rm go${{ env.GO_VERSION }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-      - uses: cross-platform-actions/action@v0.32.0
-        with:
-          operating_system: openbsd
-          version: ${{ matrix.version }}
-          architecture: arm64
-          cpu_count: 1
-          sync_files: runner-to-vm
-          shell: bash
-          run: |
-            mv ${{ github.workspace }}/tmp/go /tmp/go
-            export PATH=$PATH:/tmp/go/bin
-            pkgs=$(go list -f '{{ .ImportPath }}' ./...)
-            for pkg in ${pkgs}; do
-              go vet ${pkg}
-            done
-            GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
+    name: openbsd/arm64
+    uses: ./.github/workflows/code-check-openbsd-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
 
   windows-amd64:
+    needs:
+      - prepare
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - runner: windows-2022
-            name: windows/amd64(Windows Server 2022)
-          - runner: windows-2025
-            name: windows/amd64(Windows Server 2025)
-    name: ${{ matrix.target.name }}
-    runs-on: ${{ matrix.target.runner }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - run: go vet ./...
-      - run: go test ./...
+        version:
+          - "2022"
+          - "2025"
+    name: windows/arm64
+    uses: ./.github/workflows/code-check-windows-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
 
   windows-arm64:
-    name: windows/arm64(Windows 11)
-    runs-on: windows-11-arm
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - run: go vet ./...
-      - run: go test ./...
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "11"
+    name: windows/arm64
+    uses: ./.github/workflows/code-check-windows-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}

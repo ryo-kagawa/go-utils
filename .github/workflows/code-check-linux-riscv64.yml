@@ -1,0 +1,61 @@
+name: Code Check linux/riscv64
+
+on:
+  workflow_call:
+    inputs:
+      go_version:
+        required: true
+        type: string
+
+env:
+  GOOS: linux
+  GOARCH: riscv64
+  PLATFORM: linux/riscv64
+
+jobs:
+  linux-riscv64:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - ubuntu-22.04
+          - ubuntu-24.04
+        target:
+          - image: riscv64/debian:latest
+            name: CGO_ENABLED=0
+            cgo: 0
+          - image: riscv64/debian:latest
+            name: GNU C Library
+            cgo: 1
+          - image: riscv64/alpine:latest
+            name: musl
+            cgo: 1
+    name: linux/riscv64 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: cache
+        uses: actions/cache@v5
+        with:
+          path: /tmp/go
+          key: go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          curl --location https://go.dev/dl/go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz | tar -xzf - -C /tmp
+      - uses: docker/setup-qemu-action@v3
+        with:
+          platforms: ${{ env.PLATFORM }}
+      - run: |
+          docker run \
+            --rm \
+            -v $(pwd):/workspace \
+            -v /tmp/go:/tmp/go \
+            -w /workspace \
+            --platform ${{ env.PLATFORM }} \
+            ${{ matrix.target.image }} \
+            sh -c "
+              export PATH=$PATH:/tmp/go/bin &&
+              export CGO_ENABLED=${{ matrix.target.cgo }} &&
+              go vet ./... &&
+              go test ./...
+            "

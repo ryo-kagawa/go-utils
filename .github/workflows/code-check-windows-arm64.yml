@@ -1,0 +1,42 @@
+name: Code Check windows/arm64
+
+on:
+  workflow_call:
+    inputs:
+      go_version:
+        required: true
+        type: string
+      os_version:
+        required: true
+        type: string
+
+env:
+  TARGET: |
+    {
+      "11": {
+        runner: "windows-11-arm",
+      },
+    }
+
+jobs:
+  prepare:
+    outputs:
+      runner: ${{ steps.set.outputs.runner }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: set
+        run: |
+          echo "runner=${{ fromJson(env.TARGET)[inputs.os_version].runner }}" >> $GITHUB_OUTPUT
+
+  windows-arm64:
+    needs:
+      - prepare
+    name: windows/arm64(Windows ${{ inputs.os_version }})
+    runs-on: ${{ needs.prepare.outputs.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ inputs.go_version }}
+      - run: go vet ./...
+      - run: go test ./...
