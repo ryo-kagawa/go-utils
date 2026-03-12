@@ -1,10 +1,10 @@
-name: Code Check 1.24
+name: Code Check All 1.26
 
 on:
   workflow_call:
 
 env:
-  GO_VERSION: 1.24.13
+  GO_VERSION: 1.26.1
 
 jobs:
   prepare:
@@ -108,7 +108,7 @@ jobs:
   linux-amd64:
     needs:
       - prepare
-    name: linux/386
+    name: linux/amd64
     uses: ./.github/workflows/code-check-linux-amd64.yml
     with:
       go_version: ${{ needs.prepare.outputs.go_version }}
@@ -251,6 +251,21 @@ jobs:
           - '7.8'
     name: openbsd/arm64
     uses: ./.github/workflows/code-check-openbsd-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
+
+  windows-386:
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "2022"
+          - "2025"
+    name: windows/arm64
+    uses: ./.github/workflows/code-check-windows-386.yml
     with:
       go_version: ${{ needs.prepare.outputs.go_version }}
       os_version: ${{ matrix.version }}

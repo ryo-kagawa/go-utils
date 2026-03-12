@@ -45,6 +45,25 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
+  create-cache-runner-architecture:
+    strategy:
+      fail-fast: false
+      matrix:
+          target:
+            - runner: windows-2022
+              name: windows/amd64(Windows Server 2022)
+              architecture: '386'
+            - runner: windows-2025
+              name: windows/amd64(Windows Server 2025)
+              architecture: '386'
+    name: ${{ matrix.target.name }}
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          architecture: ${{ matrix.target.architecture }}
+
   create-cache-binary:
     strategy:
       fail-fast: false
@@ -54,6 +73,18 @@ jobs:
             arch: amd64
           - os: freebsd
             arch: arm64
+          - os: linux
+            arch: '386'
+          - os: linux
+            arch: armv6l
+          # - os: linux
+          #   arch: mips64le
+          - os: linux
+            arch: ppc64le
+          - os: linux
+            arch: riscv64
+          - os: linux
+            arch: s390x
           - os: netbsd
             arch: amd64
           - os: netbsd
