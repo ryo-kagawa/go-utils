@@ -1,0 +1,26 @@
+name: Code Check First Class
+
+on:
+  pull_request:
+  workflow_call:
+
+jobs:
+  code-check-1_22:
+    name: Go 1.22
+    uses: ./.github/workflows/code-check-first-class-1.22.yml
+
+  code-check-1_23:
+    name: Go 1.23
+    uses: ./.github/workflows/code-check-first-class-1.23.yml
+
+  code-check-1_24:
+    name: Go 1.24
+    uses: ./.github/workflows/code-check-first-class-1.24.yml
+
+  code-check-1_25:
+    name: Go 1.25
+    uses: ./.github/workflows/code-check-first-class-1.25.yml
+
+  code-check-1_26:
+    name: Go 1.26
+    uses: ./.github/workflows/code-check-first-class-1.26.yml

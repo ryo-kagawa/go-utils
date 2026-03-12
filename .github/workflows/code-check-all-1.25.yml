@@ -1,10 +1,10 @@
-name: Code Check 1.22
+name: Code Check All 1.25
 
 on:
   workflow_call:
 
 env:
-  GO_VERSION: 1.22.12
+  GO_VERSION: 1.25.8
 
 jobs:
   prepare:
@@ -108,7 +108,7 @@ jobs:
   linux-amd64:
     needs:
       - prepare
-    name: linux/386
+    name: linux/amd64
     uses: ./.github/workflows/code-check-linux-amd64.yml
     with:
       go_version: ${{ needs.prepare.outputs.go_version }}
@@ -145,14 +145,13 @@ jobs:
     with:
       go_version: ${{ needs.prepare.outputs.go_version }}
 
-  # mips64leは1.22ではSIGBUSエラーにより動かない
-  # linux-mips64le:
-  #   needs:
-  #     - prepare
-  #   name: linux/mips64le
-  #   uses: ./.github/workflows/code-check-linux-mips64le.yml
-  #   with:
-  #     go_version: ${{ needs.prepare.outputs.go_version }}
+  linux-mips64le:
+    needs:
+      - prepare
+    name: linux/mips64le
+    uses: ./.github/workflows/code-check-linux-mips64le.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
 
   linux-ppc64le:
     needs:
@@ -252,6 +251,21 @@ jobs:
           - '7.8'
     name: openbsd/arm64
     uses: ./.github/workflows/code-check-openbsd-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
+
+  windows-386:
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "2022"
+          - "2025"
+    name: windows/arm64
+    uses: ./.github/workflows/code-check-windows-386.yml
     with:
       go_version: ${{ needs.prepare.outputs.go_version }}
       os_version: ${{ matrix.version }}

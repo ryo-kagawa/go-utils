@@ -1,0 +1,125 @@
+name: First Class Code Check 1.23
+
+on:
+  workflow_call:
+
+env:
+  GO_VERSION: 1.23.12
+
+jobs:
+  prepare:
+    outputs:
+      go_version: ${{ steps.set.outputs.go_version }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: set
+        run: |
+          echo "go_version=${{ env.GO_VERSION }}" >> $GITHUB_OUTPUT
+
+  darwin-amd64:
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "15"
+    name: darwin/amd64
+    uses: ./.github/workflows/code-check-darwin-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
+
+  darwin-arm64:
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "14"
+          - "15"
+          - "26"
+    name: darwin/arm64
+    uses: ./.github/workflows/code-check-darwin-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
+
+  linux-386:
+    needs:
+      - prepare
+    name: linux/386
+    uses: ./.github/workflows/code-check-linux-386.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+
+  linux-amd64:
+    needs:
+      - prepare
+    name: linux/386
+    uses: ./.github/workflows/code-check-linux-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+
+  linux-arm-v5:
+    needs:
+      - prepare
+    name: linux/arm v5
+    uses: ./.github/workflows/code-check-linux-arm-v5.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+
+  linux-arm-v6:
+    needs:
+      - prepare
+    name: linux/arm v6
+    uses: ./.github/workflows/code-check-linux-arm-v6.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+
+  linux-arm-v7:
+    needs:
+      - prepare
+    name: linux/arm v7
+    uses: ./.github/workflows/code-check-linux-arm-v7.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+
+  linux-arm64:
+    needs:
+      - prepare
+    name: linux/arm64
+    uses: ./.github/workflows/code-check-linux-arm64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+
+  windows-386:
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "2022"
+          - "2025"
+    name: windows/arm64
+    uses: ./.github/workflows/code-check-windows-386.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
+
+  windows-amd64:
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - "2022"
+          - "2025"
+    name: windows/arm64
+    uses: ./.github/workflows/code-check-windows-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}

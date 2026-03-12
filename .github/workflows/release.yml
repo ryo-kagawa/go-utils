@@ -9,7 +9,7 @@ on:
 
 jobs:
   code-check:
-    uses: ./.github/workflows/code-check.yml
+    uses: ./.github/workflows/code-check-all.yml
 
   release:
     needs:
