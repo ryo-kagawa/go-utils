@@ -19,15 +19,15 @@ var (
 	ErrorEnvironmentVariableInvalidValidate error = errors.New("environment variable is invalid validate")
 )
 
-type validator interface {
+type EnvironmentVariableValidator interface {
 	Validate() error
 }
 
 // Environment variables behave differently depending on the OS:
 //
-//	Unix: case sensitive.
-//	Plan9: case sensitive.
-//	Windows: case insensitive.
+// Unix: case sensitive.
+// Plan9: case sensitive.
+// Windows: case insensitive.
 func EnvironmentVariableParse[T any]() (T, error) {
 	setKeyList := make([]string, 0)
 	var result T
@@ -62,6 +62,14 @@ func EnvironmentVariableParse[T any]() (T, error) {
 			valuePointer := (*string)(unsafe.Pointer(fieldValue.UnsafeAddr()))
 			*valuePointer = environmentValue
 			setKeyList = append(setKeyList, fieldKey)
+		case reflect.Uint16:
+			valuePointer := (*uint16)(unsafe.Pointer(fieldValue.UnsafeAddr()))
+			uint16Value, err := strconv.ParseUint(environmentValue, 10, 16)
+			if err != nil {
+				return result, errors.Join(ErrorEnvironmentVariableInvalidValue, fmt.Errorf("invalid environment variable fieldName: %s, fieldType: %s, environmentKey: %s, environmentValue: %s", fieldType.Name, fieldType.Type.Name(), fieldKey, environmentValue))
+			}
+			*valuePointer = uint16(uint16Value)
+			setKeyList = append(setKeyList, fieldKey)
 		default:
 			return result, errors.Join(ErrorEnvironmentVariableInvalidType, fmt.Errorf("invalid environment variable type fieldName: %s, fieldType: %s", fieldType.Name, fieldType.Type.Name()))
 		}
@@ -89,12 +97,19 @@ func EnvironmentVariableParse[T any]() (T, error) {
 		case reflect.String:
 			valuePointer := (*string)(unsafe.Pointer(fieldValue.UnsafeAddr()))
 			*valuePointer = defaultValue
+		case reflect.Uint16:
+			valuePointer := (*uint16)(unsafe.Pointer(fieldValue.UnsafeAddr()))
+			uintValue, err := strconv.ParseUint(defaultValue, 10, 16)
+			if err != nil {
+				return result, errors.Join(ErrorEnvironmentVariableInvalidDefault, fmt.Errorf("invalid environment variable default fieldName: %s, fieldType: %s, default: %s", fieldType.Name, fieldType.Type.Name(), defaultValue))
+			}
+			*valuePointer = uint16(uintValue)
 		default:
 			return result, errors.Join(ErrorEnvironmentVariableInvalidType, fmt.Errorf("invalid environment variable type fieldName: %s, fieldType: %s", fieldType.Name, fieldType.Type.Name()))
 		}
 	}
 
-	if validator, ok := any(&result).(validator); ok {
+	if validator, ok := any(&result).(EnvironmentVariableValidator); ok {
 		if err := validator.Validate(); err != nil {
 			return result, errors.Join(ErrorEnvironmentVariableInvalidValidate, err)
 		}
