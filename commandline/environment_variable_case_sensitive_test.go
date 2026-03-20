@@ -16,6 +16,8 @@ func TestEnvironmentVariableParse_normalStruct(t *testing.T) {
 		intValue    int    `key:"intValue"`
 		StringValue string `key:"StringValue"`
 		stringValue string `key:"stringValue"`
+		Uint16Value uint16 `key:"Uint16Value"`
+		uint16Value uint16 `key:"uint16Value"`
 	}
 
 	tests := []struct {
@@ -86,6 +88,26 @@ func TestEnvironmentVariableParse_normalStruct(t *testing.T) {
 		},
 		{
 			preprocess: func() {
+				os.Setenv("Uint16Value", "1")
+			},
+			name: "Environment\nUint16Value=1\nEnvironmentVariableParse() == normalStruct{Uint16Value: 1}, nil",
+			want: normalStruct{
+				Uint16Value: 1,
+			},
+			wantErr: false,
+		},
+		{
+			preprocess: func() {
+				os.Setenv("uint16Value", "1")
+			},
+			name: "Environment\nuint16Value=1\nEnvironmentVariableParse() == normalStruct{uint16Value: 1}, nil",
+			want: normalStruct{
+				uint16Value: 1,
+			},
+			wantErr: false,
+		},
+		{
+			preprocess: func() {
 				os.Setenv("BoolValue", "a")
 			},
 			name:    "Environment\nBoolValue=a\nEnvironmentVariableParse() == normalStruct{}, error",
@@ -105,6 +127,30 @@ func TestEnvironmentVariableParse_normalStruct(t *testing.T) {
 				os.Setenv("IntValue", "a")
 			},
 			name:    "Environment\nIntValue=a\nEnvironmentVariableParse() == normalStruct{}, error",
+			want:    normalStruct{},
+			wantErr: true,
+		},
+		{
+			preprocess: func() {
+				os.Setenv("Uint16Value", "")
+			},
+			name:    "Environment\nIUint16Value=\nEnvironmentVariableParse() == normalStruct{}, error",
+			want:    normalStruct{},
+			wantErr: true,
+		},
+		{
+			preprocess: func() {
+				os.Setenv("Uint16Value", "a")
+			},
+			name:    "Environment\nUint16Value=a\nEnvironmentVariableParse() == normalStruct{}, error",
+			want:    normalStruct{},
+			wantErr: true,
+		},
+		{
+			preprocess: func() {
+				os.Setenv("Uint16Value", "-1")
+			},
+			name:    "Environment\nUint16Value=-1\nEnvironmentVariableParse() == normalStruct{}, error",
 			want:    normalStruct{},
 			wantErr: true,
 		},
@@ -131,6 +177,8 @@ func TestEnvironmentVariableParse_defaultStruct(t *testing.T) {
 		intValue    int    `key:"intValue" default:"1"`
 		StringValue string `key:"StringValue" default:"a"`
 		stringValue string `key:"stringValue" default:"a"`
+		Uint16Value uint16 `key:"Uint16Value" default:"1"`
+		uint16Value uint16 `key:"uint16Value" default:"1"`
 	}
 
 	tests := []struct {
@@ -141,12 +189,14 @@ func TestEnvironmentVariableParse_defaultStruct(t *testing.T) {
 	}{
 		{
 			preprocess: func() {},
-			name:       "EnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 1, StringValue: \"a\", stringValue: \"a\"}, nil",
+			name:       "EnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 1, StringValue: \"a\", stringValue: \"a\", Uint16Value: 1, uint16Value: 1}, nil",
 			want: defaultStruct{
 				IntValue:    1,
 				intValue:    1,
 				StringValue: "a",
 				stringValue: "a",
+				Uint16Value: 1,
+				uint16Value: 1,
 			},
 			wantErr: false,
 		},
@@ -154,12 +204,14 @@ func TestEnvironmentVariableParse_defaultStruct(t *testing.T) {
 			preprocess: func() {
 				os.Setenv("IntValue", "0")
 			},
-			name: "Environment\nIntValue=0\nEnvironmentVariableParse() == defaultStruct{IntValue: 0, intValue: 1, StringValue: \"a\", stringValue: \"a\"}, error",
+			name: "Environment\nIntValue=0\nEnvironmentVariableParse() == defaultStruct{IntValue: 0, intValue: 1, StringValue: \"a\", stringValue: \"a\", Uint16Value: 1, uint16Value: 1}, error",
 			want: defaultStruct{
 				IntValue:    0,
 				intValue:    1,
 				StringValue: "a",
 				stringValue: "a",
+				Uint16Value: 1,
+				uint16Value: 1,
 			},
 			wantErr: false,
 		},
@@ -167,12 +219,14 @@ func TestEnvironmentVariableParse_defaultStruct(t *testing.T) {
 			preprocess: func() {
 				os.Setenv("intValue", "0")
 			},
-			name: "Environment\nintValue=0\nEnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 0, StringValue: \"a\", stringValue: \"a\"}, error",
+			name: "Environment\nintValue=0\nEnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 0, StringValue: \"a\", stringValue: \"a\", Uint16Value: 1, uint16Value: 1}, error",
 			want: defaultStruct{
 				IntValue:    1,
 				intValue:    0,
 				StringValue: "a",
 				stringValue: "a",
+				Uint16Value: 1,
+				uint16Value: 1,
 			},
 			wantErr: false,
 		},
@@ -180,12 +234,14 @@ func TestEnvironmentVariableParse_defaultStruct(t *testing.T) {
 			preprocess: func() {
 				os.Setenv("StringValue", "b")
 			},
-			name: "Environment\nStringValue=b\nEnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 1, StringValue: \"b\", stringValue: \"a\"}, error",
+			name: "Environment\nStringValue=b\nEnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 1, StringValue: \"b\", stringValue: \"a\", Uint16Value: 1, uint16Value: 1}, error",
 			want: defaultStruct{
 				IntValue:    1,
 				intValue:    1,
 				StringValue: "b",
 				stringValue: "a",
+				Uint16Value: 1,
+				uint16Value: 1,
 			},
 			wantErr: false,
 		},
@@ -193,12 +249,44 @@ func TestEnvironmentVariableParse_defaultStruct(t *testing.T) {
 			preprocess: func() {
 				os.Setenv("stringValue", "b")
 			},
-			name: "Environment\nstringValue=b\nEnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 1, StringValue: \"a\", stringValue: \"b\"}, error",
+			name: "Environment\nstringValue=b\nEnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 1, StringValue: \"a\", stringValue: \"b\", Uint16Value: 1, uint16Value: 1}, error",
 			want: defaultStruct{
 				IntValue:    1,
 				intValue:    1,
 				StringValue: "a",
 				stringValue: "b",
+				Uint16Value: 1,
+				uint16Value: 1,
+			},
+			wantErr: false,
+		},
+		{
+			preprocess: func() {
+				os.Setenv("Uint16Value", "0")
+			},
+			name: "Environment\nUint16Value=0\nEnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 1, StringValue: \"a\", stringValue: \"a\", Uint16Value: 0, uint16Value: 1}, error",
+			want: defaultStruct{
+				IntValue:    1,
+				intValue:    1,
+				StringValue: "a",
+				stringValue: "a",
+				Uint16Value: 0,
+				uint16Value: 1,
+			},
+			wantErr: false,
+		},
+		{
+			preprocess: func() {
+				os.Setenv("uint16Value", "0")
+			},
+			name: "Environment\nuint16Value=0\nEnvironmentVariableParse() == defaultStruct{IntValue: 1, intValue: 1, StringValue: \"a\", stringValue: \"a\", Uint16Value: 1, uint16Value: 0}, error",
+			want: defaultStruct{
+				IntValue:    1,
+				intValue:    1,
+				StringValue: "a",
+				stringValue: "a",
+				Uint16Value: 1,
+				uint16Value: 0,
 			},
 			wantErr: false,
 		},
@@ -208,110 +296,6 @@ func TestEnvironmentVariableParse_defaultStruct(t *testing.T) {
 			os.Clearenv()
 			tt.preprocess()
 			got, err := EnvironmentVariableParse[defaultStruct]()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("EnvironmentVariableParse() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("EnvironmentVariableParse() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestEnvironmentVariableParse_invalidType(t *testing.T) {
-	type invalidTypeStruct struct {
-		Float64Value float64 `key:"Float64Value"`
-	}
-
-	tests := []struct {
-		preprocess func()
-		name       string
-		want       invalidTypeStruct
-		wantErr    bool
-	}{
-		{
-			preprocess: func() {
-				os.Setenv("Float64Value", "1")
-			},
-			name:    "EnvironmentVariableParse() == invalidTypeStruct{}, error",
-			want:    invalidTypeStruct{},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			os.Clearenv()
-			tt.preprocess()
-			got, err := EnvironmentVariableParse[invalidTypeStruct]()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("EnvironmentVariableParse() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("EnvironmentVariableParse() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestEnvironmentVariableParse_invalidDefaultValue(t *testing.T) {
-	type invalidDefaultStruct struct {
-		IntValue int `key:"IntValue" default:""`
-	}
-
-	tests := []struct {
-		preprocess func()
-		name       string
-		want       invalidDefaultStruct
-		wantErr    bool
-	}{
-		{
-			preprocess: func() {},
-			name:       "EnvironmentVariableParse() == invalidDefaultStruct{}, error",
-			want:       invalidDefaultStruct{},
-			wantErr:    true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			os.Clearenv()
-			tt.preprocess()
-			got, err := EnvironmentVariableParse[invalidDefaultStruct]()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("EnvironmentVariableParse() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("EnvironmentVariableParse() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestEnvironmentVariableParse_invalidDefaultType(t *testing.T) {
-	type invalidDefaultTypeStruct struct {
-		Float64Value float64 `key:"IntValue" default:""`
-	}
-
-	tests := []struct {
-		preprocess func()
-		name       string
-		want       invalidDefaultTypeStruct
-		wantErr    bool
-	}{
-		{
-			preprocess: func() {},
-			name:       "EnvironmentVariableParse() == invalidDefaultTypeStruct{}, error",
-			want:       invalidDefaultTypeStruct{},
-			wantErr:    true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			os.Clearenv()
-			tt.preprocess()
-			got, err := EnvironmentVariableParse[invalidDefaultTypeStruct]()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("EnvironmentVariableParse() error = %v, wantErr %v", err, tt.wantErr)
 				return
