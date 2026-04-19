@@ -34,7 +34,7 @@ jobs:
           curl --location --output go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz https://go.dev/dl/go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
           tar -xzf go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
           rm go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz
-      - uses: cross-platform-actions/action@v0.32.0
+      - uses: cross-platform-actions/action@v1.0.0
         with:
           operating_system: ${{ env.VM_OS }}
           version: ${{ inputs.os_version }}
