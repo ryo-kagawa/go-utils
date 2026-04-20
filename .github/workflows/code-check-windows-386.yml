@@ -31,10 +31,10 @@ jobs:
         run: |
           echo "runner=${{ fromJson(env.TARGET)[inputs.os_version].runner }}" >> $GITHUB_OUTPUT
 
-  windows-amd64:
+  windows-386:
     needs:
       - prepare
-    name: windows/amd64(Windows Server ${{ inputs.os_version }})
+    name: windows/386(Windows Server ${{ inputs.os_version }})
     runs-on: ${{ needs.prepare.outputs.runner }}
     steps:
       - uses: actions/checkout@v6

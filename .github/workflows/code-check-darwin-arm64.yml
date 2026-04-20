@@ -37,7 +37,7 @@ jobs:
   darwin-arm64:
     needs:
       - prepare
-    name: darwin/amd64(macOS ${{ inputs.os_version }})
+    name: darwin/arm64(macOS ${{ inputs.os_version }})
     runs-on: ${{ needs.prepare.outputs.runner }}
     steps:
       - uses: actions/checkout@v6
