@@ -17,8 +17,8 @@ env:
   VM_ARCHITECTURE: arm64
 
 jobs:
-  openbsd-ard64:
-    name: openbsd/ard64(OpenBSD ${{ inputs.os_version }})
+  openbsd-arm64:
+    name: openbsd/arm64(OpenBSD ${{ inputs.os_version }})
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

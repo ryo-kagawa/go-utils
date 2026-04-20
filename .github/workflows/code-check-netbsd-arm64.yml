@@ -17,7 +17,7 @@ env:
   VM_ARCHITECTURE: arm64
 
 jobs:
-  netbsd-amd64:
+  netbsd-arm64:
     name: netbsd/arm64(NetBSD ${{ inputs.os_version }})
     runs-on: ubuntu-latest
     steps:

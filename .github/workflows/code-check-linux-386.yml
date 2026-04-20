@@ -30,7 +30,7 @@ jobs:
           - image: i386/alpine:latest
             name: musl
             cgo: 1
-    name: linux/arm v5 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
+    name: linux/386 ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v6
