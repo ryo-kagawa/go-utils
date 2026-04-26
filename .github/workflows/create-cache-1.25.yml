@@ -12,32 +12,30 @@ jobs:
       fail-fast: false
       matrix:
           target:
-            # - runner: macos-14-large
-            #   name: darwin/amd64(macOS 14)
+            # setup-go-macOS-x64
             - runner: macos-15-intel
-              name: darwin/amd64(macOS 15)
-            # - runner: macos-26-large
-            #   name: darwin/amd64(macOS 26)
-            - runner: macos-14
-              name: darwin/arm64(macOS 14)
-            - runner: macos-15
-              name: darwin/arm64(macOS 15)
+              name: darwin/amd64
+            # setup-go-macOS-arm64
             - runner: macos-26
-              name: darwin/arm64(macOS 26)
+              name: darwin/arm64
+            # setup-go-Linux-x64-ubuntu22
             - runner: ubuntu-22.04
               name: linux/amd64(Ubuntu 22.04)
+            # setup-go-Linux-x64-ubuntu24
             - runner: ubuntu-24.04
               name: linux/amd64(Ubuntu 24.04)
+            # setup-go-Linux-arm64-ubuntu22
             - runner: ubuntu-22.04-arm
               name: linux/arm64(Ubuntu 22.04)
+            # setup-go-Linux-arm64-ubuntu24
             - runner: ubuntu-24.04-arm
               name: linux/arm64(Ubuntu 24.04)
-            - runner: windows-2022
-              name: windows/amd64(Windows Server 2022)
+            # setup-go-Windows-x64
             - runner: windows-2025
-              name: windows/amd64(Windows Server 2025)
+              name: windows/amd64
+            # setup-go-Windows-arm64
             - runner: windows-11-arm
-              name: windows/arm64(Windows 11)
+              name: windows/arm64
     name: ${{ matrix.target.name }}
     runs-on: ${{ matrix.target.runner }}
     steps:
@@ -51,9 +49,6 @@ jobs:
       fail-fast: false
       matrix:
           target:
-            - runner: windows-2022
-              name: windows/386(Windows Server 2022)
-              architecture: '386'
             - runner: windows-2025
               name: windows/386(Windows Server 2025)
               architecture: '386'
