@@ -66,6 +66,8 @@ jobs:
       fail-fast: false
       matrix:
         target:
+          - os: dragonfly
+            arch: amd64
           - os: freebsd
             arch: amd64
           - os: freebsd
