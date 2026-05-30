@@ -65,6 +65,7 @@ jobs:
           - '14.1'
           - '14.2'
           - '14.3'
+          - '14.4'
           - '15.0'
     name: freebsd/amd64
     uses: ./.github/workflows/code-check-freebsd-amd64.yml
@@ -90,6 +91,7 @@ jobs:
           - '14.1'
           - '14.2'
           - '14.3'
+          - '14.4'
           - '15.0'
     name: freebsd/arm64
     uses: ./.github/workflows/code-check-freebsd-arm64.yml
