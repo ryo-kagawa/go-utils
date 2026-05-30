@@ -46,6 +46,20 @@ jobs:
       go_version: ${{ needs.prepare.outputs.go_version }}
       os_version: ${{ matrix.version }}
 
+  dragonfly-amd64:
+    needs:
+      - prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '6.4.2'
+    name: dragonfly/amd64
+    uses: ./.github/workflows/code-check-dragonfly-amd64.yml
+    with:
+      go_version: ${{ needs.prepare.outputs.go_version }}
+      os_version: ${{ matrix.version }}
+
   freebsd-amd64:
     needs:
       - prepare
