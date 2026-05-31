@@ -43,10 +43,12 @@ jobs:
           sync_files: runner-to-vm
       - shell: cpa.sh {0}
         run: |
-          mv ${{ github.workspace }}/tmp/go /tmp/go
-          export PATH=$PATH:/tmp/go/bin
-          pkgs=$(go list -f '{{ .ImportPath }}' ./...)
-          for pkg in ${pkgs}; do
-            go vet ${pkg}
-          done
-          GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
+          bash -c '
+            mv ${{ github.workspace }}/tmp/go /tmp/go
+            export PATH=$PATH:/tmp/go/bin
+            pkgs=$(go list -f "{{ .ImportPath }}" ./...)
+            for pkg in ${pkgs}; do
+              go vet ${pkg}
+            done
+            GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
+          '
