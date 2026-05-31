@@ -41,12 +41,17 @@ jobs:
           architecture: ${{ env.VM_ARCHITECTURE }}
           cpu_count: 1
           sync_files: runner-to-vm
-          shell: bash
-          run: |
-            mv ${{ github.workspace }}/tmp/go /tmp/go
-            export PATH=$PATH:/tmp/go/bin
-            pkgs=$(go list -f '{{ .ImportPath }}' ./...)
-            for pkg in ${pkgs}; do
-              go vet ${pkg}
-            done
-            GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
+      - shell: cpa.sh {0}
+        run: |
+          mv ${{ github.workspace }}/tmp/go /tmp/go
+      - shell: cpa.sh {0}
+        run: |
+          export PATH=$PATH:/tmp/go/bin
+          pkgs=$(go list -f '{{ .ImportPath }}' ./...)
+          for pkg in ${pkgs}; do
+            go vet ${pkg}
+          done
+      - shell: cpa.sh {0}
+        run: |
+          export PATH=$PATH:/tmp/go/bin
+          GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
