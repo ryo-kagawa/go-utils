@@ -44,14 +44,9 @@ jobs:
       - shell: cpa.sh {0}
         run: |
           mv ${{ github.workspace }}/tmp/go /tmp/go
-      - shell: cpa.sh {0}
-        run: |
           export PATH=$PATH:/tmp/go/bin
           pkgs=$(go list -f '{{ .ImportPath }}' ./...)
           for pkg in ${pkgs}; do
             go vet ${pkg}
           done
-      - shell: cpa.sh {0}
-        run: |
-          export PATH=$PATH:/tmp/go/bin
           GOMAXPROCS=1 go test -p 1 -parallel 1 ./...
