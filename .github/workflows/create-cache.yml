@@ -28,13 +28,13 @@ jobs:
     uses: ./.github/workflows/create-cache-1.26.yml
 
   create-cahce-docker-qemu-linux-x64:
-    name: linux-amd64
+    name: Docker QEMU Linux AMD64
     runs-on: ubuntu-latest
     steps:
       - uses: docker/setup-qemu-action@v4
 
   create-cahce-docker-qemu-linux-arm64:
-    name: linux-rm64
+    name: Docker QEMU Linux ARM64
     runs-on: 	ubuntu-24.04-arm
     steps:
       - uses: docker/setup-qemu-action@v4
