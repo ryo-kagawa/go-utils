@@ -1,0 +1,17 @@
+name: Pull Request Status Check
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  code-check-first-class:
+    name: Code Check First Class
+    uses: ./.github/workflows/code-check-first-class.yml
+
+  pull-request-status-check:
+    name: Pull Request Status Check
+    needs: code-check-first-class
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "OK"
