@@ -40,7 +40,7 @@ jobs:
     name: darwin/amd64(macOS ${{ inputs.os_version }})
     runs-on: ${{ needs.prepare.outputs.runner }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v6
         with:
           go-version: ${{ inputs.go_version }}
