@@ -11,17 +11,13 @@ on:
         type: string
 
 env:
+  GOOS: darwin
+  GOARCH: arm64
   TARGET: |
     {
-      "14": {
-        runner: "macos-14",
-      },
-      "15": {
-        runner: "macos-15",
-      },
-      "26": {
-        runner: "macos-26",
-      },
+      "14": { "runner": "macos-14" },
+      "15": { "runner": "macos-15" },
+      "26": { "runner": "macos-26" }
     }
 
 jobs:
@@ -41,8 +37,11 @@ jobs:
     runs-on: ${{ needs.prepare.outputs.runner }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-go@v6
+      - uses: actions/cache/restore@v6
         with:
-          go-version: ${{ inputs.go_version }}
+          path: ${{ github.workspace }}/tmp/go
+          key: go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}
+          fail-on-cache-miss: true
+      - run: echo "${{ github.workspace }}/tmp/go/bin" >> $GITHUB_PATH
       - run: go vet ./...
       - run: go test ./...

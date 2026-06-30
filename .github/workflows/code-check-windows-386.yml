@@ -11,14 +11,12 @@ on:
         type: string
 
 env:
+  GOOS: windows
+  GOARCH: '386'
   TARGET: |
     {
-      "2022": {
-        runner: "windows-2022",
-      },
-      "2025": {
-        runner: "windows-2025",
-      },
+      "2022": { "runner": "windows-2022" },
+      "2025": { "runner": "windows-2025" }
     }
 
 jobs:
@@ -38,9 +36,11 @@ jobs:
     runs-on: ${{ needs.prepare.outputs.runner }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-go@v6
+      - uses: actions/cache/restore@v6
         with:
-          go-version: ${{ inputs.go_version }}
-          architecture: '386'
+          path: ${{ github.workspace }}/tmp/go
+          key: go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}
+          fail-on-cache-miss: true
+      - run: Add-Content $env:GITHUB_PATH "${{ github.workspace }}/tmp/go/bin"
       - run: go vet ./...
       - run: go test ./...

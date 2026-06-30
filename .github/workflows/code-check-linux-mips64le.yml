@@ -25,20 +25,17 @@ jobs:
             name: CGO_ENABLED=0
             cgo: 0
           - image: mips64le/debian:latest
-            name: musl
+            name: GNU C Library
             cgo: 1
     name: linux/mips64le ${{ matrix.target.name }}(${{ matrix.target.image }})(${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v7
-      - id: cache
-        uses: actions/cache@v6
+      - uses: actions/cache/restore@v6
         with:
-          path: /tmp/go
+          path: ${{ github.workspace }}/tmp/go
           key: go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}
-      - if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          curl --location https://go.dev/dl/go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}.tar.gz | tar -xzf - -C /tmp
+          fail-on-cache-miss: true
       - uses: docker/setup-qemu-action@v4
         with:
           platforms: ${{ env.PLATFORM }}
@@ -46,12 +43,11 @@ jobs:
           docker run \
             --rm \
             -v $(pwd):/workspace \
-            -v /tmp/go:/tmp/go \
             -w /workspace \
             --platform ${{ env.PLATFORM }} \
             ${{ matrix.target.image }} \
             sh -c "
-              export PATH=$PATH:/tmp/go/bin &&
+              export PATH=$PATH:/workspace/tmp/go/bin &&
               export CGO_ENABLED=${{ matrix.target.cgo }} &&
               go vet ./... &&
               go test ./...
