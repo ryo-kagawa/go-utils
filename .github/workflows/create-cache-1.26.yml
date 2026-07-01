@@ -49,13 +49,13 @@ jobs:
           - os: linux
             arch: '386'
           - os: linux
-            arch: 'amd64'
+            arch: amd64
           - os: linux
             arch: arm64
           - os: linux
             arch: armv6l
-          # - os: linux
-          #   arch: mips64le
+          - os: linux
+            arch: mips64le
           - os: linux
             arch: ppc64le
           - os: linux
@@ -97,11 +97,41 @@ jobs:
           - os: windows
             arch: '386'
           - os: windows
-            arch: 'amd64'
-          - os: windows
-            arch: 'arm64'
+            arch: amd64
     name: ${{ matrix.target.os }}/${{ matrix.target.arch }}
     runs-on: windows-latest
+    steps:
+      - id: cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ${{ github.workspace }}/tmp/go
+          key: go${{ env.GO_VERSION }}.${{ matrix.target.os }}-${{ matrix.target.arch }}
+          lookup-only: true
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          New-Item -ItemType Directory -Path "tmp"
+          Invoke-WebRequest -Uri "https://go.dev/dl/go${{ env.GO_VERSION }}.${{ matrix.target.os }}-${{ matrix.target.arch }}.zip" -OutFile "tmp/go${{ env.GO_VERSION }}.${{ matrix.target.os }}-${{ matrix.target.arch }}.zip"
+          Expand-Archive -Path "tmp/go${{ env.GO_VERSION }}.${{ matrix.target.os }}-${{ matrix.target.arch }}.zip" -DestinationPath "tmp"
+          Remove-Item -Recurse "tmp/go/api"
+          Remove-Item -Recurse "tmp/go/doc"
+          Remove-Item -Recurse "tmp/go/misc"
+          Remove-Item -Recurse "tmp/go/test"
+          Get-ChildItem -Path "tmp/go/src" -Filter "*_test.go" -Recurse | Remove-Item
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ${{ github.workspace }}/tmp/go
+          key: go${{ env.GO_VERSION }}.${{ matrix.target.os }}-${{ matrix.target.arch }}
+
+  create-cache-windows-arm64:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - os: windows
+            arch: arm64
+    name: ${{ matrix.target.os }}/${{ matrix.target.arch }}
+    runs-on: windows-11-arm
     steps:
       - id: cache
         uses: actions/cache/restore@v6
