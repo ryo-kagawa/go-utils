@@ -27,7 +27,7 @@ jobs:
           path: ${{ github.workspace }}/tmp/go
           key: go${{ inputs.go_version }}.${{ env.GOOS }}-${{ env.GOARCH }}
           fail-on-cache-miss: true
-      - uses: cross-platform-actions/action@v1.3.0
+      - uses: cross-platform-actions/action@v1.5.0
         with:
           operating_system: ${{ env.VM_OS }}
           version: ${{ inputs.os_version }}
